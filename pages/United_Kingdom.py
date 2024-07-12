@@ -28,10 +28,10 @@ supabase, bq_client = init_clients()
 @st.cache_data(ttl=600)
 def get_data_uk():
     try:
-        response_uk = supabase.table('uk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey', 'odds', 'odds_predicted', 'num').execute()
+        response_uk = supabase.table('uk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey', 'odds', 'odds_predicted', 'num', 'hint').execute()
         df = pd.DataFrame(response_uk.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
-        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'num': 'Horse number', 'odds': 'Initial market odds'}, inplace=True)
+        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'num': 'Horse number', 'odds': 'Initial market odds', 'hint': 'Betting hint'}, inplace=True)
         return df
     except Exception as e:
         st.error(f"Error fetching data from Supabase: {e}")
@@ -79,7 +79,7 @@ def display_race_data(df):
             st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
             
             # Display only horse, jockey, and odds
-            display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Initial market odds', 'Odds predicted']].reset_index(drop=True)
+            display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Initial market odds', 'Odds predicted', 'Betting hint']].reset_index(drop=True)
 
             display_df.index += 1  # Start index from 1 instead of 0
             st.dataframe(display_df, use_container_width=True)
@@ -90,27 +90,13 @@ def display_race_data(df):
 
 def plot_accuracy(df):
     st.subheader("Accuracy Over Time")
-    try:
-        fig = px.bar(df, x='race_date', y='avg_acc_top3', title='Average Accuracy (Top 3)')
-        st.plotly_chart(fig)
-    except Exception as e:
-        st.error(f"Error creating plot: {str(e)}")
-        st.write("DataFrame info:")
-        st.write(df.info())
-        st.write("DataFrame head:")
-        st.write(df.head())
+    fig = px.bar(df, x='race_date', y='avg_acc_top3', title='Average Accuracy (Top 3)')
+    st.plotly_chart(fig, use_container_width=True)
 
 def plot_earnings(df):
     st.subheader("Cumulative Earnings")
-    try:
-        fig = px.area(df, x='race_date', y='money_earned_top3_cm', title='Cumulative Sum Earned (Top 3)')
-        st.plotly_chart(fig)
-    except Exception as e:
-        st.error(f"Error creating plot: {str(e)}")
-        st.write("DataFrame info:")
-        st.write(df.info())
-        st.write("DataFrame head:")
-        st.write(df.head())
+    fig = px.area(df, x='race_date', y='money_earned_top3_cm', title='Cumulative Sum Earned (Top 3)')
+    st.plotly_chart(fig, use_container_width=True)
 
 def main():
     st.title("🏇 UK Horse Racing Odds Prediction")

@@ -5,7 +5,7 @@ from google.oauth2 import service_account
 from google.cloud import bigquery
 import numpy as np
 
-st.set_page_config(page_title="France horse racing", page_icon="🇫🇷", layout="wide)
+st.set_page_config(page_title="France horse racing", page_icon="🇫🇷", layout="wide")
 st.logo("dg-logo.png")
 #fr emoji: 🇫🇷
 

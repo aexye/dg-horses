@@ -89,13 +89,15 @@ def display_race_data(df):
         st.info("Please select at least one race name to display the data.")
 
 def plot_accuracy(df):
-    st.subheader("Accuracy Over Time")
-    fig = px.bar(df, x='race_date', y='avg_acc_top3', title='Average Accuracy (Top 3)')
+    st.subheader("Accuracy metric")
+    st.markdown("Accuracy over time metric - in other words, how well our model is predicting the top 3 finishers in each race. It is NOT the accuracy of the odds or overall accuracy of the model.")
+    fig = px.bar(df, x='race_date', y='avg_acc_top3', title='Average Accuracy (Top 3)', labels={'avg_acc_top3': 'Accuracy', 'race_date': 'Date'})
     st.plotly_chart(fig, use_container_width=True)
 
 def plot_earnings(df):
     st.subheader("Cumulative Earnings")
-    fig = px.area(df, x='race_date', y='money_earned_top3_cm', title='Cumulative Sum Earned (Top 3)')
+    st.markdown("This chart illustrates the cumulative earnings that would have resulted from betting $10 on the top 3 finishers in each race, using the closing odds to determine the payout. The chart shows the total amount of money that would have been earned if this strategy had been employed.")
+    fig = px.area(df, x='race_date', y='money_earned_top3_cm', title='Cumulative Sum Earned (Top 3)', labels={'money_earned_top3_cm': 'Earnings over time in $', 'race_date': 'Date'})
     st.plotly_chart(fig, use_container_width=True)
 
 def main():

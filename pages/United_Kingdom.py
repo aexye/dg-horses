@@ -90,8 +90,15 @@ def display_race_data(df):
 
 def plot_accuracy(df):
     st.subheader("Accuracy Over Time")
-    fig = px.bar(df, x='race_date', y='avg_acc_top3', title='Average Accuracy (Top 3)')
-    st.plotly_chart(fig, use_container_width=True)
+    try:
+        fig = px.bar(df, x='race_date', y='avg_acc_top3', title='Average Accuracy (Top 3)')
+        st.plotly_chart(fig)
+    except Exception as e:
+        st.error(f"Error creating plot: {str(e)}")
+        st.write("DataFrame info:")
+        st.write(df.info())
+        st.write("DataFrame head:")
+        st.write(df.head())
 
 def plot_earnings(df):
     st.subheader("Cumulative Earnings")

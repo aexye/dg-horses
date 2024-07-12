@@ -10,4 +10,4 @@ st.logo("dg-logo.png")
 #     return create_client(url, key)
 
 
-st.markdown("# Welcome to the Horse Racing Odds Prediction")
+st.markdown("# Welcome to Data Gaming's Horse Racing Demo!")

@@ -7,7 +7,7 @@ from google.cloud import bigquery
 import plotly.express as px
 
 st.set_page_config(page_title="UK Horse Racing", page_icon="🇬🇧", layout="wide")
-st.logo("st-website\dg-logo.png")
+st.logo("dg-logo.png")
 # Initialize clients (consider moving this to a separate function)
 @st.cache_resource
 def init_clients():

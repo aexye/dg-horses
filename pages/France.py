@@ -75,8 +75,8 @@ def display_race_data(df):
             
             st.markdown(f"### {race}")
             st.markdown(f"**Date:** {race_date} | **City:** {city}")
-            st.markdown(f"**Odds difference:** {odds_diff}")
-            st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
+            # st.markdown(f"**Odds difference:** {odds_diff}")
+            # st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
             
             # Display only horse, jockey, and odds
             display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Betting hint']].reset_index(drop=True)

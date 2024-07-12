@@ -102,8 +102,15 @@ def plot_accuracy(df):
 
 def plot_earnings(df):
     st.subheader("Cumulative Earnings")
-    fig = px.area(df, x='race_date', y='money_earned_top3_cm', title='Cumulative Sum Earned (Top 3)')
-    st.plotly_chart(fig, use_container_width=True)
+    try:
+        fig = px.area(df, x='race_date', y='money_earned_top3_cm', title='Cumulative Sum Earned (Top 3)')
+        st.plotly_chart(fig)
+    except Exception as e:
+        st.error(f"Error creating plot: {str(e)}")
+        st.write("DataFrame info:")
+        st.write(df.info())
+        st.write("DataFrame head:")
+        st.write(df.head())
 
 def main():
     st.title("🏇 UK Horse Racing Odds Prediction")

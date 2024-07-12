@@ -5,7 +5,7 @@ from google.oauth2 import service_account
 from google.cloud import bigquery
 
 st.set_page_config(page_title="France horse racing", page_icon="🇫🇷")
-st.logo("st-website\dg-logo.png")
+st.logo("dg-logo.png")
 #fr emoji: 🇫🇷
 
 url = st.secrets["supabase_url"]

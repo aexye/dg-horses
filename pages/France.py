@@ -103,7 +103,7 @@ def plot_earnings(df):
 def main():
     st.title("🏇 FR Horse Racing Odds Prediction")
     
-    tab1, tab2 = st.tabs(["Race Data", "Performance Metrics"])
+    tab1, tab2, tab3 = st.tabs(["Race Data", "Performance Metrics", "Preview Demo"])
     
     with tab1:
         race_data = get_data_fr()
@@ -118,6 +118,10 @@ def main():
         #     plot_accuracy(bq_data)
         # with col2:
         #     plot_earnings(bq_data)
-
+    with tab3:
+        st.markdown("Example of race preview with both per runner and general description")
+        df_llm = pd.read_csv('r_betting_hints_llm.csv')
+        st.dataframe(df_llm, use_container_width=True)
+        
 if __name__ == "__main__":
     main()

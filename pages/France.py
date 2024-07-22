@@ -125,13 +125,18 @@ def main():
         preview_full = """
         # Race Preview
 
-        As the gates prepare to open for this exciting 1600m hybrid track race, the anticipation builds for a thrilling contest. **Bo Lywood** emerges as the clear favorite, despite a recent setback, with past victories hinting at potential glory. Hot on his heels, **Iken** and **Alva** are primed to challenge, their recent performances suggesting they're in fine form.
+        As the gates prepare to open for this exciting 1600m hybrid track race, the anticipation builds for a thrilling contest. 
+        
+        **Bo Lywood** emerges as the clear favorite, despite a recent setback, with past victories hinting at potential glory. 
+        Hot on his heels, **Iken** and **Alva** are primed to challenge, their recent performances suggesting they're in fine form.
 
-        **Zvaroshka** and **Terredequerre** shouldn't be overlooked, both showing consistency that could translate into success today. Meanwhile, **Sky Power** and **Lamento** face a tough challenge but could surprise if fortune favors them.
+        **Zvaroshka** and **Terredequerre** shouldn't be overlooked, both showing consistency that could translate into success today. 
+        Meanwhile, **Sky Power** and **Lamento** face a tough challenge but could surprise if fortune favors them.
 
         The middle of the pack is anybody's guess, with several contenders poised to make a move. **Marzouk** and **Camelot Song** are particularly intriguing, their mixed recent results adding an element of unpredictability.
 
-        From seasoned performers to potential dark horses, this race promises excitement at every turn. Will the favorite prevail, or will we witness an underdog steal the show? The stage is set for a captivating contest that could go down to the wire!
+        From seasoned performers to potential dark horses, this race promises excitement at every turn. Will the favorite prevail, or will we witness an underdog steal the show? 
+        The stage is set for a captivating contest that could go down to the wire!
         """
 
         st.markdown(preview_full)

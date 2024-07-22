@@ -119,9 +119,21 @@ def main():
         # with col2:
         #     plot_earnings(bq_data)
     with tab3:
-        st.markdown("Example of race preview with both per runner and general description")
+        st.title("Example of race preview with both per runner and general description")
+        st.markdown("R1C7 COMPIÈGNE Prix des Hauts-de-France - 22.07.2024")
+
+        preview_full = """
+        As the gates prepare to open for this exciting 1600m hybrid track race, the anticipation builds for a thrilling contest. Bo Lywood emerges as the clear favorite, despite a recent setback, with past victories hinting at potential glory. Hot on his heels, Iken and Alva are primed to challenge, their recent performances suggesting they're in fine form.
+        Zvaroshka and Terredeguerre shouldn't be overlooked, both showing consistency that could translate into success today. Meanwhile, Sky Power and Lamento face a tough challenge but could surprise if fortune favors them.
+        The middle of the pack is anybody's guess, with several contenders poised to make a move. Marzouk and Camelot Song are particularly intriguing, their mixed recent results adding an element of unpredictability.
+        From seasoned performers to potential dark horses, this race promises excitement at every turn. Will the favorite prevail, or will we witness an underdog steal the show? The stage is set for a captivating contest that could go down to the wire!
+        """
+
+        st.text_area(preview_full)
         df_llm = pd.read_csv("pages/fr_betting_hints_llm.csv")
+        df_llm = df_llm[['horse', 'preview']]
         st.dataframe(df_llm, use_container_width=True)
+        
         
 if __name__ == "__main__":
     main()

@@ -121,7 +121,7 @@ def main():
     with tab3:
         st.markdown("Example of race preview with both per runner and general description")
         df_llm = pd.read_csv("pages/fr_betting_hints_llm.csv")
-        st.table(df_llm)
+        st.dataframe(df_llm, use_container_width=True)
         
 if __name__ == "__main__":
     main()

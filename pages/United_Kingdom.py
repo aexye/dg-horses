@@ -44,7 +44,6 @@ def get_bigquery_data():
     try:
         df = bq_client.query(query).to_dataframe()
         df['race_date'] = pd.to_datetime(df['race_date'])
-        df['money_earned_top3_cm'] = df['money_earned_top3'].cumsum()
         return df
     except Exception as e:
         st.error(f"Error fetching data from BigQuery: {e}")

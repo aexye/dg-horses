@@ -115,6 +115,7 @@ def main():
             plot_accuracy(bq_data)
         with col2:
             plot_earnings(bq_data)
+        st.dataframe(bq_data)
 
 if __name__ == "__main__":
     main()

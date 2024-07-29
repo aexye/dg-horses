@@ -40,11 +40,10 @@ def get_data_fr():
 # Fetch data from BigQuery
 @st.cache_data(ttl=600)
 def get_bigquery_data():
-    query = "SELECT * FROM `data-gaming-425312.dbt_prod_uk_horse_racing.uk_model_stats`"
+    query = "SELECT * FROM `data-gaming-425312.dbt_prod_fr_horse_racing.fr_model_stats`"
     try:
         df = bq_client.query(query).to_dataframe()
         df['race_date'] = pd.to_datetime(df['race_date'])
-        df['money_earned_top3_cm'] = df['money_earned_top3'].cumsum()
         return df
     except Exception as e:
         st.error(f"Error fetching data from BigQuery: {e}")
@@ -117,14 +116,12 @@ def main():
         display_race_data(race_data)
         # st.dataframe(race_data)
     with tab2:
-        #placeholder
-        st.markdown("Performance metrics will be displayed here.")
-        # bq_data = get_bigquery_data()
-        # col1, col2 = st.columns(2)
-        # with col1:
-        #     plot_accuracy(bq_data)
-        # with col2:
-        #     plot_earnings(bq_data)
+        bq_data = get_bigquery_data()
+        col1, col2 = st.columns(2)
+        with col1:
+            plot_accuracy(bq_data)
+        with col2:
+            plot_earnings(bq_data)
     with tab3:
         st.title("Example of race preview with both per runner and general description")
         st.markdown("R1C7 COMPIÈGNE Prix des Hauts-de-France - 22.07.2024")

@@ -102,8 +102,8 @@ def plot_accuracy(df):
 
 def plot_earnings(df):
     st.subheader("Cumulative Earnings")
-    st.markdown("This chart illustrates the cumulative earnings that would have resulted from betting $10 on the top 3 finishers in each race, using the closing odds to determine the payout. The chart shows the total amount of money that would have been earned if this strategy had been employed.")
-    fig = px.area(df, x='race_date', y='money_earned_top3_cm', title='Cumulative Sum Earned (Top 3)', labels={'money_earned_top3_cm': 'Earnings over time in $', 'race_date': 'Date'})
+    st.markdown("This chart illustrates the cumulative earnings that would have resulted from betting $10 on the top 1 finisher in each race, using the closing odds to determine the payout. The chart shows the total amount of money that would have been earned if this strategy had been employed.")
+    fig = px.area(df, x='race_date', y='money_earned_top3_cm', title='Cumulative Sum Earned (Top 1)', labels={'money_earned_top1': 'Earnings over time in $', 'race_date': 'Date'})
     st.plotly_chart(fig, use_container_width=True)
 
 def main():

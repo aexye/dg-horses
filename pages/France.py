@@ -4,6 +4,7 @@ from supabase import create_client, Client
 from google.oauth2 import service_account
 from google.cloud import bigquery
 import numpy as np
+import plotly.express as px
 
 st.set_page_config(page_title="France horse racing", page_icon="🇫🇷", layout="wide")
 st.logo("dg-logo.png")

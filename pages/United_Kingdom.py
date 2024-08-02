@@ -28,10 +28,10 @@ supabase, bq_client = init_clients()
 @st.cache_data(ttl=600)
 def get_data_uk():
     try:
-        response_uk = supabase.table('uk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey', 'odds', 'odds_predicted', 'num', 'positive_hint', 'negative_hint', 'draw').execute()
+        response_uk = supabase.table('uk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey', 'odds', 'odds_predicted', 'num', 'positive_hint', 'negative_hint', 'draw', 'formfigs').execute()
         df = pd.DataFrame(response_uk.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
-        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 'negative_hint': 'Betting hint (-)', 'draw': 'Draw'}, inplace=True)
+        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 'negative_hint': 'Betting hint (-)', 'draw': 'Draw', 'formfigs': 'Last 4 races'}, inplace=True)
         return df
     except Exception as e:
         st.error(f"Error fetching data from Supabase: {e}")

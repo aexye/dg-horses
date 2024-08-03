@@ -86,7 +86,7 @@ def display_race_data(df):
             # st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
             
             # Display only horse, jockey, and odds
-            display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 4 races', 'Initial market odds', 'Odds predicted', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
+            display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
 
             display_df.index += 1  # Start index from 1 instead of 0
             st.dataframe(display_df, use_container_width=True)

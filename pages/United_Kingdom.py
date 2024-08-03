@@ -31,7 +31,7 @@ def get_data_uk():
         response_uk = supabase.table('uk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey', 'odds', 'odds_predicted', 'num', 'positive_hint', 'negative_hint', 'draw', 'formfigs').execute()
         df = pd.DataFrame(response_uk.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
-        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 'negative_hint': 'Betting hint (-)', 'draw': 'Draw', 'formfigs': 'Last 4 races'}, inplace=True)
+        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 'negative_hint': 'Betting hint (-)', 'draw': 'Draw', 'formfigs': 'Last 5 races'}, inplace=True)
         return df
     except Exception as e:
         st.error(f"Error fetching data from Supabase: {e}")
@@ -85,7 +85,7 @@ def display_race_data(df):
             st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
             
             # Display only horse, jockey, and odds
-            display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 4 races', 'Initial market odds', 'Odds predicted', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
+            display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
 
             display_df.index += 1  # Start index from 1 instead of 0
             st.dataframe(display_df, use_container_width=True)

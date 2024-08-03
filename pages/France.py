@@ -29,10 +29,10 @@ supabase, bq_client = init_clients()
 @st.cache_data(ttl=600)
 def get_data_fr():
     try:
-        response_fr = supabase.table('fr_horse_racing').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_4_races').execute()
+        response_fr = supabase.table('fr_horse_racing').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions').execute()
         df = pd.DataFrame(response_fr.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
-        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 'negative_hint': 'Betting hint (-)', 'last_4_races': 'Last 4 races', 'draw_norm': 'Draw'}, inplace=True)
+        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 'negative_hint': 'Betting hint (-)', 'last_5_positions': 'Last 5 races', 'draw_norm': 'Draw'}, inplace=True)
         return df
     except Exception as e:
         st.error(f"Error fetching data from Supabase: {e}")

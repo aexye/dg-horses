@@ -29,10 +29,13 @@ supabase, bq_client = init_clients()
 @st.cache_data(ttl=600)
 def get_data_fr():
     try:
-        response_fr = supabase.table('fr_horse_racing').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial').execute()
+        response_fr = supabase.table('fr_horse_racing').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob').execute()
         df = pd.DataFrame(response_fr.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
-        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 'negative_hint': 'Betting hint (-)', 'last_5_positions': 'Last 5 races', 'draw_norm': 'Draw', 'odds_predicted_intial': 'Odds predicted (raw)'}, inplace=True)
+        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 
+                           'negative_hint': 'Betting hint (-)', 'last_5_positions': 'Last 5 races', 'draw_norm': 'Draw', 'odds_predicted_intial': 'Odds predicted (raw)',
+                           'winner_prob': 'Win probability','trifecta_prob': 'Trifecta probability','quinella_prob': 'Quinella probability','place_prob': 'Place probability','last_place_prob': 'Last place probability'
+                            }, inplace=True)
         return df
     except Exception as e:
         st.error(f"Error fetching data from Supabase: {e}")
@@ -87,10 +90,11 @@ def display_race_data(df):
             
             # Display only horse, jockey, and odds
             display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
-
+            display_df_prob = race_df[['Horse', 'Win probability', 'Trifecta probability', 'Quinella probability', 'Place probability', 'Last place probability']]
             display_df.index += 1  # Start index from 1 instead of 0
+            display_df_prob.index += 1  # Start index from 1 instead of 0
             st.dataframe(display_df, use_container_width=True)
-            
+            st.dataframe(display_df_prob, use_container_width=True)
             st.markdown("---")  # Add a separator between races
     else:
         st.info("Please select at least one race name to display the data.")

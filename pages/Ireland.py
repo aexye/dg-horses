@@ -114,19 +114,20 @@ def plot_earnings(df):
 def main():
     st.title("🏇 IRE Horse Racing Odds Prediction")
     
-    tab1 = st.tabs(["Race Data"])
+    tab1, tab2 = st.tabs(["Race Data", "Performance Metrics"])
     
     with tab1:
-        race_data = get_data_fr()
+        race_data = get_data_uk()
         display_race_data(race_data)
         # st.dataframe(race_data)
-    # with tab2:
-    #     bq_data = get_bigquery_data()
-    #     col1, col2 = st.columns(2)
-    #     with col1:
-    #         plot_accuracy(bq_data)
-    #     with col2:
-    #         plot_earnings(bq_data)
+    with tab2:
+        bq_data = get_bigquery_data()
+        col1, col2 = st.columns(2)
+        with col1:
+            plot_accuracy(bq_data)
+        with col2:
+            plot_earnings(bq_data)
+        # st.dataframe(bq_data)
         
         
 if __name__ == "__main__":

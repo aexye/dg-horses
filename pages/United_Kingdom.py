@@ -26,12 +26,15 @@ supabase, bq_client = init_clients()
 
 # Fetch data from Supabase
 @st.cache_data(ttl=600)
-def get_data_uk():
+def get_data_fr():
     try:
-        response_uk = supabase.table('uk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey', 'odds', 'odds_predicted', 'num', 'positive_hint', 'negative_hint', 'draw', 'formfigs', 'odds_predicted_intial').execute()
-        df = pd.DataFrame(response_uk.data)
+        response_fr = supabase.table('uk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob').execute()
+        df = pd.DataFrame(response_fr.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
-        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 'negative_hint': 'Betting hint (-)', 'draw': 'Draw', 'formfigs': 'Last 5 races', 'odds_predicted_intial': 'Odds predicted (raw)'}, inplace=True)
+        df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 
+                           'negative_hint': 'Betting hint (-)', 'last_5_positions': 'Last 5 races', 'draw_norm': 'Draw', 'odds_predicted_intial': 'Odds predicted (raw)',
+                           'winner_prob': 'Win probability','trifecta_prob': 'Trifecta probability','quinella_prob': 'Quinella probability','place_prob': 'Place probability','last_place_prob': 'Last place probability'
+                            }, inplace=True)
         return df
     except Exception as e:
         st.error(f"Error fetching data from Supabase: {e}")
@@ -40,7 +43,7 @@ def get_data_uk():
 # Fetch data from BigQuery
 @st.cache_data(ttl=600)
 def get_bigquery_data():
-    query = "SELECT * FROM `data-gaming-425312.dbt_prod_uk_horse_racing.uk_model_stats`"
+    query = "SELECT * FROM `data-gaming-425312.dbt_prod_fr_horse_racing.fr_model_stats`"
     try:
         df = bq_client.query(query).to_dataframe()
         df['race_date'] = pd.to_datetime(df['race_date'])
@@ -70,7 +73,7 @@ def display_race_data(df):
             race_df['market_overround'] = 1/race_df['Initial market odds']
             race_df['our_overround'] = 1/race_df['Odds predicted']
             market_ovr = (race_df['market_overround'].sum()).round(2)
-            our_ovr =   race_df['our_overround'].sum().round(2)
+            our_ovr = race_df['our_overround'].sum().round(2)
             
             # Get the race details for the header
             race_date = race_df['race_date'].iloc[0].strftime('%Y-%m-%d')
@@ -81,15 +84,16 @@ def display_race_data(df):
             
             st.markdown(f"### {race}")
             st.markdown(f"**Date:** {race_date} | **City:** {city}")
-            st.markdown(f"**Odds difference:** {odds_diff}")
-            st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
+            # st.markdown(f"**Odds difference:** {odds_diff}")
+            # st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
             
             # Display only horse, jockey, and odds
             display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
-
+            display_df_prob = race_df[['Horse', 'Win probability', 'Trifecta probability', 'Quinella probability', 'Place probability', 'Last place probability']]
             display_df.index += 1  # Start index from 1 instead of 0
+            display_df_prob.index += 1  # Start index from 1 instead of 0
             st.dataframe(display_df, use_container_width=True)
-            
+            st.dataframe(display_df_prob, use_container_width=True)
             st.markdown("---")  # Add a separator between races
     else:
         st.info("Please select at least one race name to display the data.")

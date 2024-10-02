@@ -117,7 +117,7 @@ def main():
     tab1, tab2 = st.tabs(["Race Data", "Performance Metrics"])
     
     with tab1:
-        race_data = get_data_uk()
+        race_data = get_data_ie()
         display_race_data(race_data)
         # st.dataframe(race_data)
     with tab2:

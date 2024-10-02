@@ -54,7 +54,7 @@ def get_bigquery_data():
 
 def display_race_data(df):
     st.subheader("Race Data")
-
+    print(df.head())
     selected_city = st.selectbox("Select city", ["All"] + list(df['city'].unique()))
     
     # Filter dataframe by city if a specific city is selected

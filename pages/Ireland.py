@@ -27,7 +27,7 @@ supabase, bq_client = init_clients()
 
 # Fetch data from Supabase
 @st.cache_data(ttl=600)
-def get_data_fr():
+def get_data_ie():
     try:
         response_ie = supabase.table('ie_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob').execute()
         df = pd.DataFrame(response_ie.data)

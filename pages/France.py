@@ -112,7 +112,7 @@ def plot_earnings(df):
     st.plotly_chart(fig, use_container_width=True)
     
 def main():
-    st.title("🏇 FR Horse Racing Odds Prediction")
+    st.title("🇫🇷 FR Horse Racing Odds Prediction")
     
     tab1, tab2, tab3 = st.tabs(["Race Data", "Performance Metrics", "Preview Demo"])
     

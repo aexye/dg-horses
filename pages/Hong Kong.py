@@ -119,7 +119,6 @@ def main():
         # st.subheader("Work in progress")
         race_data = get_data_hk()
         display_race_data(race_data)
-        st.dataframe(race_data)
     with tab2:
         st.subheader("Work in progress")
         # st.dataframe(bq_data)

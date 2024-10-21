@@ -120,8 +120,14 @@ def main():
         race_data = get_data_hk()
         display_race_data(race_data)
     with tab2:
-        st.subheader("Work in progress")
+        # st.subheader("Work in progress")
         # st.dataframe(bq_data)
+        bq_data = get_bigquery_data()
+        col1, col2 = st.columns(2)
+        with col1:
+            plot_accuracy(bq_data)
+        with col2:
+            plot_earnings(bq_data)
 
 if __name__ == "__main__":
     main()

@@ -43,7 +43,7 @@ def get_data_uk():
 # Fetch data from BigQuery
 @st.cache_data(ttl=600)
 def get_bigquery_data():
-    query = "SELECT * FROM `data-gaming-425312.dbt_prod_fr_horse_racing.fr_model_stats`"
+    query = "SELECT * FROM `data-gaming-425312.gb_horse_data.gb_data__predictions_stats`"
     try:
         df = bq_client.query(query).to_dataframe()
         df['race_date'] = pd.to_datetime(df['race_date'])

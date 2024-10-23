@@ -90,7 +90,7 @@ def display_race_data(df):
             
             # Display only horse, jockey, and odds
             display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
-            display_df_prob = race_df[['Horse', 'Win probability', 'Trifecta probability', 'Quinella probability', 'Place probability', 'Last place probability']]
+            display_df_prob = race_df[['Horse', 'Win probability', 'Top2 probability', 'Top3 probability', 'Last place probability']]
             display_df.index += 1  # Start index from 1 instead of 0
             display_df_prob.index += 1  # Start index from 1 instead of 0
             st.dataframe(display_df, use_container_width=True)

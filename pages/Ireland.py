@@ -34,7 +34,7 @@ def get_data_ie():
         df['race_date'] = pd.to_datetime(df['race_date'])
         df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 
                            'negative_hint': 'Betting hint (-)', 'last_5_positions': 'Last 5 races', 'draw_norm': 'Draw', 'odds_predicted_intial': 'Odds predicted (raw)',
-                           'winner_prob': 'Win probability','trifecta_prob': 'Trifecta probability','quinella_prob': 'Quinella probability','place_prob': 'Place probability','last_place_prob': 'Last place probability'
+                           'winner_prob': 'Win probability','trifecta_prob': 'Top3 probability','quinella_prob': 'Top2 probability','last_place_prob': 'Last place probability'
                             }, inplace=True)
         return df
     except Exception as e:
@@ -90,7 +90,7 @@ def display_race_data(df):
             
             # Display only horse, jockey, and odds
             display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
-            display_df_prob = race_df[['Horse', 'Win probability', 'Trifecta probability', 'Quinella probability', 'Place probability', 'Last place probability']]
+            display_df_prob = race_df[['Horse', 'Win probability', 'Top2 probability', 'Top3 probability', 'Last place probability']]
             display_df.index += 1  # Start index from 1 instead of 0
             display_df_prob.index += 1  # Start index from 1 instead of 0
             st.dataframe(display_df, use_container_width=True)

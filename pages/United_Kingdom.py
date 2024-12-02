@@ -120,11 +120,11 @@ def display_race_data(df, odds_df):
                     race_odds_df,
                     x='scraped_time',
                     y='odds',
-                    color='horse',
+                    color='Horse',
                     labels={
                         'scraped_time': 'Time',
                         'odds': 'Odds',
-                        'horse': 'Horse'
+                        'Horse': 'Horse'
                     },
                     title='Odds Movement'
                 )

@@ -28,7 +28,7 @@ supabase, bq_client = init_clients()
 @st.cache_data(ttl=600)
 def get_data_uk():
     try:
-        response_gb = supabase.table('uk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob').execute()
+        response_gb = supabase.table('uk_horse_racing_full').select('race_date', 'race_id', 'horse_id', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob').execute()
         df = pd.DataFrame(response_gb.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
         df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint', 
@@ -52,7 +52,17 @@ def get_bigquery_data():
         st.error(f"Error fetching data from BigQuery: {e}")
         return pd.DataFrame()
 
-def display_race_data(df):
+@st.cache_data(ttl=600)
+def get_bigquery_odds_data():
+    try:
+        query = "SELECT * FROM `data-gaming-425312.gb_horse_data.gb_horse_odds`"
+        df = bq_client.query(query).to_dataframe()
+        return df
+    except Exception as e:
+        st.error(f"Error fetching data from BigQuery: {e}")
+        return pd.DataFrame()
+
+def display_race_data(df, odds_df):
     st.subheader("Race Data")
     print(df.head())
     selected_city = st.selectbox("Select city", ["All"] + list(df['city'].unique()))
@@ -66,6 +76,12 @@ def display_race_data(df):
     if selected:
         for race in selected:
             race_df = df[df['race_name'] == race]
+            
+            # Get the race_id for this race
+            race_id = race_df['race_id'].iloc[0]
+            
+            # Filter odds data for this race
+            race_odds_df = odds_df[odds_df['race_id'] == race_id]
             
             race_df['Odds difference'] = np.absolute(race_df['Initial market odds'] - race_df['Odds predicted'])
             odds_diff = race_df['Odds difference'].sum().round(2)
@@ -94,6 +110,36 @@ def display_race_data(df):
             display_df_prob.index += 1  # Start index from 1 instead of 0
             st.dataframe(display_df, use_container_width=True)
             st.dataframe(display_df_prob, use_container_width=True)
+            
+            # Add odds movement plot
+            if not race_odds_df.empty:
+                fig = px.line(
+                    race_odds_df,
+                    x='scraped_time',
+                    y='odds',
+                    color='horse_link',
+                    labels={
+                        'scraped_time': 'Time',
+                        'odds': 'Odds',
+                        'horse_link': 'Horse'
+                    },
+                    title='Odds Movement'
+                )
+                
+                # Customize the layout
+                fig.update_layout(
+                    xaxis_title="Time",
+                    yaxis_title="Odds",
+                    legend_title="Horses",
+                    height=400
+                )
+                
+                # Add horse names to legend
+                horse_names = race_df.set_index('horse_id')['Horse'].to_dict()
+                fig.for_each_trace(lambda t: t.update(name=horse_names.get(t.name, t.name)))
+                
+                st.plotly_chart(fig, use_container_width=True)
+            
             st.markdown("---")  # Add a separator between races
     else:
         st.info("Please select at least one race name to display the data.")
@@ -117,8 +163,9 @@ def main():
     
     with tab1:
         race_data = get_data_uk()
-        display_race_data(race_data)
-        # st.dataframe(race_data)
+        odds_data = get_bigquery_odds_data()
+        display_race_data(race_data, odds_data)
+    
     with tab2:
         bq_data = get_bigquery_data()
         col1, col2 = st.columns(2)

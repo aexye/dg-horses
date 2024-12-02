@@ -82,6 +82,9 @@ def display_race_data(df, odds_df):
             
             # Filter odds data for this race
             race_odds_df = odds_df[odds_df['race_id'] == race_id]
+            #join the two dataframes on horse_id
+            race_odds_df = race_odds_df.rename(columns={'horse_link': 'horse_id'})
+            race_odds_df = pd.merge(race_odds_df, race_df, on=['horse_id', 'race_id'], how='left')
             
             race_df['Odds difference'] = np.absolute(race_df['Initial market odds'] - race_df['Odds predicted'])
             odds_diff = race_df['Odds difference'].sum().round(2)
@@ -117,11 +120,11 @@ def display_race_data(df, odds_df):
                     race_odds_df,
                     x='scraped_time',
                     y='odds',
-                    color='horse_link',
+                    color='horse',
                     labels={
                         'scraped_time': 'Time',
                         'odds': 'Odds',
-                        'horse_link': 'Horse'
+                        'horse': 'Horse'
                     },
                     title='Odds Movement'
                 )

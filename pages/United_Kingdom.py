@@ -99,86 +99,83 @@ def display_race_data(df, odds_df):
             city = race_df['city'].iloc[0]
             
             # Create a header for each race
-            #make two columns view 
-            
             st.markdown(f"### {race}")
             st.markdown(f"**Date:** {race_date} | **City:** {city}")
-            # st.markdown(f"**Odds difference:** {odds_diff}")
-            # st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
             
             # Display only horse, jockey, and odds
             display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 'Betting hint']].reset_index(drop=True)
             display_df_prob = race_df[['Horse', 'Win probability', 'Top2 probability', 'Top3 probability', 'Last place probability']]
-            display_df.index += 1  # Start index from 1 instead of 0
-            display_df_prob.index += 1  # Start index from 1 instead of 0
+            display_df.index += 1
+            display_df_prob.index += 1
             st.dataframe(display_df, use_container_width=True)
             st.dataframe(display_df_prob, use_container_width=True)
             
-        if not race_odds_df.empty:
-            # Randomly select 6 horses to display initially
-            import random
-            all_horses = race_odds_df['Horse'].unique()
-            initial_horses = random.sample(list(all_horses), 6)
-            
-            fig = px.line(
-                race_odds_df,
-                x='scraped_time',
-                y='odds',
-                color='Horse',
-                labels={
-                    'scraped_time': 'Time',
-                    'odds': 'Odds',
-                    'Horse': 'Horse'
-                },
-                title='Odds Movement',
-                log_y=True
-            )
-            
-            # Add markers (dots) to the lines
-            fig.update_traces(
-                mode='lines+markers',  # Add markers
-                marker=dict(size=6),   # Set marker size
-                line=dict(width=2)     # Make lines a bit thicker
-            )
-            
-            # Customize the layout
-            fig.update_layout(
-                xaxis_title="Time",
-                yaxis_title="Odds",
-                legend_title="Horses",
-                height=600,  # Increased height for better readability
-                yaxis={
-                    'autorange': 'reversed',
-                    'type': 'log',
-                    'gridwidth': 0.5,
-                    'gridcolor': 'rgba(128, 128, 128, 0.2)',  # Lighter grid
-                },
-                xaxis={
-                    'gridwidth': 0.5,
-                    'gridcolor': 'rgba(128, 128, 128, 0.2)',  # Lighter grid
-                },
-                plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
-                paper_bgcolor='rgba(0,0,0,0)',  # Transparent surrounding
-                font=dict(size=12),  # Larger font
-                legend=dict(
-                    yanchor="top",
-                    y=0.99,
-                    xanchor="left",
-                    x=1.02,
-                    itemsizing='constant'  # Make legend items consistent size
+            # Move the chart creation inside the race loop
+            if not race_odds_df.empty:
+                # Randomly select 6 horses to display initially
+                import random
+                all_horses = race_odds_df['Horse'].unique()
+                initial_horses = random.sample(list(all_horses), min(6, len(all_horses)))  # Added min() to handle races with fewer than 6 horses
+                
+                fig = px.line(
+                    race_odds_df,
+                    x='scraped_time',
+                    y='odds',
+                    color='Horse',
+                    labels={
+                        'scraped_time': 'Time',
+                        'odds': 'Odds',
+                        'Horse': 'Horse'
+                    },
+                    title=f'Odds Movement - {race}',  # Added race name to title for clarity
+                    log_y=True
                 )
-            )
-            
-            # Add horse names to legend and hide non-selected horses
-            horse_names = race_df.set_index('horse_id')['Horse'].to_dict()
-            for trace in fig.data:
-                horse_name = horse_names.get(trace.name, trace.name)
-                trace.update(
-                    name=horse_name,
-                    visible='legendonly' if horse_name not in initial_horses else True
+                
+                # Add markers (dots) to the lines
+                fig.update_traces(
+                    mode='lines+markers',
+                    marker=dict(size=6),
+                    line=dict(width=2)
                 )
-            
-            st.plotly_chart(fig, use_container_width=True)
+                
+                # Customize the layout
+                fig.update_layout(
+                    xaxis_title="Time",
+                    yaxis_title="Odds",
+                    legend_title="Horses",
+                    height=450,
+                    yaxis={
+                        'autorange': 'reversed',
+                        'type': 'log',
+                        'gridwidth': 0.5,
+                        'gridcolor': 'rgba(128, 128, 128, 0.2)',
+                    },
+                    xaxis={
+                        'gridwidth': 0.5,
+                        'gridcolor': 'rgba(128, 128, 128, 0.2)',
+                    },
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(size=12),
+                    legend=dict(
+                        yanchor="top",
+                        y=0.99,
+                        xanchor="left",
+                        x=1.02,
+                        itemsizing='constant'
+                    )
+                )
+                
+                # Add horse names to legend and hide non-selected horses
+                horse_names = race_df.set_index('horse_id')['Horse'].to_dict()
+                for trace in fig.data:
+                    horse_name = horse_names.get(trace.name, trace.name)
+                    trace.update(
+                        name=horse_name,
+                        visible='legendonly' if horse_name not in initial_horses else True
+                    )
+                
+                st.plotly_chart(fig, use_container_width=True)
             
             st.markdown("---")  # Add a separator between races
     else:

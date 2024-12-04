@@ -114,39 +114,71 @@ def display_race_data(df, odds_df):
             st.dataframe(display_df, use_container_width=True)
             st.dataframe(display_df_prob, use_container_width=True)
             
-            # Add odds movement plot
-            if not race_odds_df.empty:
-                fig = px.line(
-                    race_odds_df,
-                    x='scraped_time',
-                    y='odds',
-                    color='Horse',
-                    labels={
-                        'scraped_time': 'Time',
-                        'odds': 'Odds',
-                        'Horse': 'Horse'
-                    },
-                    title='Odds Movement',
-                    log_y=True
+        if not race_odds_df.empty:
+            # Randomly select 6 horses to display initially
+            import random
+            all_horses = race_odds_df['Horse'].unique()
+            initial_horses = random.sample(list(all_horses), 6)
+            
+            fig = px.line(
+                race_odds_df,
+                x='scraped_time',
+                y='odds',
+                color='Horse',
+                labels={
+                    'scraped_time': 'Time',
+                    'odds': 'Odds',
+                    'Horse': 'Horse'
+                },
+                title='Odds Movement',
+                log_y=True
+            )
+            
+            # Add markers (dots) to the lines
+            fig.update_traces(
+                mode='lines+markers',  # Add markers
+                marker=dict(size=6),   # Set marker size
+                line=dict(width=2)     # Make lines a bit thicker
+            )
+            
+            # Customize the layout
+            fig.update_layout(
+                xaxis_title="Time",
+                yaxis_title="Odds",
+                legend_title="Horses",
+                height=600,  # Increased height for better readability
+                yaxis={
+                    'autorange': 'reversed',
+                    'type': 'log',
+                    'gridwidth': 0.5,
+                    'gridcolor': 'rgba(128, 128, 128, 0.2)',  # Lighter grid
+                },
+                xaxis={
+                    'gridwidth': 0.5,
+                    'gridcolor': 'rgba(128, 128, 128, 0.2)',  # Lighter grid
+                },
+                plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
+                paper_bgcolor='rgba(0,0,0,0)',  # Transparent surrounding
+                font=dict(size=12),  # Larger font
+                legend=dict(
+                    yanchor="top",
+                    y=0.99,
+                    xanchor="left",
+                    x=1.02,
+                    itemsizing='constant'  # Make legend items consistent size
                 )
-                
-                # Customize the layout
-                fig.update_layout(
-                    xaxis_title="Time",
-                    yaxis_title="Odds",
-                    legend_title="Horses",
-                    height=500,
-                    yaxis={
-                        'autorange': 'reversed',  # This inverts the y-axis
-                        'type': 'log'  # Ensure logarithmic scale
-                        }
+            )
+            
+            # Add horse names to legend and hide non-selected horses
+            horse_names = race_df.set_index('horse_id')['Horse'].to_dict()
+            for trace in fig.data:
+                horse_name = horse_names.get(trace.name, trace.name)
+                trace.update(
+                    name=horse_name,
+                    visible='legendonly' if horse_name not in initial_horses else True
                 )
-                
-                # Add horse names to legend
-                horse_names = race_df.set_index('horse_id')['Horse'].to_dict()
-                fig.for_each_trace(lambda t: t.update(name=horse_names.get(t.name, t.name)))
-                
-                st.plotly_chart(fig, use_container_width=True)
+            
+            st.plotly_chart(fig, use_container_width=True)
             
             st.markdown("---")  # Add a separator between races
     else:

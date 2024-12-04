@@ -126,7 +126,7 @@ def display_race_data(df, odds_df):
                         'odds': 'Odds',
                         'Horse': 'Horse'
                     },
-                    title='Odds Movement'
+                    title='Odds Movement',
                     log_y=True
                 )
                 

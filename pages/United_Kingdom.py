@@ -135,7 +135,7 @@ def display_race_data(df, odds_df):
                     xaxis_title="Time",
                     yaxis_title="Odds",
                     legend_title="Horses",
-                    height=400,
+                    height=500,
                     yaxis={
                         'autorange': 'reversed',  # This inverts the y-axis
                         'type': 'log'  # Ensure logarithmic scale

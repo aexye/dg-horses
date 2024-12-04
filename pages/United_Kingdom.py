@@ -127,6 +127,7 @@ def display_race_data(df, odds_df):
                         'Horse': 'Horse'
                     },
                     title='Odds Movement'
+                    log_y=True
                 )
                 
                 # Customize the layout
@@ -134,7 +135,11 @@ def display_race_data(df, odds_df):
                     xaxis_title="Time",
                     yaxis_title="Odds",
                     legend_title="Horses",
-                    height=400
+                    height=400,
+                    yaxis={
+                        'autorange': 'reversed',  # This inverts the y-axis
+                        'type': 'log'  # Ensure logarithmic scale
+                        }
                 )
                 
                 # Add horse names to legend

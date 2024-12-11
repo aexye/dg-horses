@@ -99,11 +99,10 @@ def create_computeform_table(race_df):
     for _, horse in race_df.iterrows():
         row = {'Horse': horse['Horse']}
         
-        # Calculate base score (sum of all stat scores)
-        base_scores = [horse[stat[0]] for stat in stats]
-        total_score = sum(base_scores)
+        # Calculate total score (sum of all stat scores)
+        total_score = sum(horse[stat[0]] for stat in stats)
         
-        if total_score < 5:  # Threshold for "not enough data"
+        if total_score < 80:  # Threshold for "not enough data"
             row['COMPUTE'] = "Not enough data"
             display_data.append(row)
             continue
@@ -118,9 +117,8 @@ def create_computeform_table(race_df):
             else:
                 row[stat] = "0"
         
-        # Calculate final score
-        final_score = sum(int(v) for v in row.values() if isinstance(v, str) and v.replace('+','').replace('-','').isdigit())
-        row['COMPUTE'] = int(round(row['BASE'] + final_score))
+        # Set final score
+        row['COMPUTE'] = int(round(total_score))
         
         display_data.append(row)
     

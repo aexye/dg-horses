@@ -43,15 +43,22 @@ def get_data_uk():
             'jockey_skill_score', 'jockey_skill_score_diff',
             'trainer_skill_score', 'trainer_skill_score_diff'
         ).execute()
+        
         df = pd.DataFrame(response_gb.data)
+        
+        # Debug: Print columns and first row
+        st.write("Available columns:", df.columns.tolist())
+        st.write("First row sample:", df.iloc[0].to_dict())
+        
         df['race_date'] = pd.to_datetime(df['race_date'])
         df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint', 
                             'last_5_positions': 'Last 5 races', 'draw_norm': 'Draw', 'odds_predicted_intial': 'Odds predicted (raw)',
                            'winner_prob': 'Win probability','trifecta_prob': 'Top3 probability','quinella_prob': 'Top2 probability','last_place_prob': 'Last place probability'
                             }, inplace=True)
         return df
+        
     except Exception as e:
-        st.error(f"Error fetching data from Supabase: {e}")
+        st.error(f"Error fetching data from Supabase: {str(e)}")
         return pd.DataFrame()
 
 # Fetch data from BigQuery

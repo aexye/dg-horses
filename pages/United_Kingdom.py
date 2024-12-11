@@ -105,6 +105,9 @@ def create_computeform_table(race_df):
         if total_score < 5:  # Threshold for "not enough data"
             row['COMPUTE'] = "Not enough data"
             row['sort_value'] = -1  # For sorting purposes
+            # Fill all stat columns with "None" for not enough data
+            for stat, _ in stats:
+                row[stat] = "None"
             display_data.append(row)
             continue
             
@@ -112,15 +115,15 @@ def create_computeform_table(race_df):
         for stat, diff in stats:
             diff_value = horse[diff]
             if diff_value > 0:
-                row[stat] = "-"
+                row[stat] = "↓"  # or "⬇️" for emoji
             elif diff_value < 0:
-                row[stat] = "+"
+                row[stat] = "↑"  # or "⬆️" for emoji
             else:
-                row[stat] = "0"
+                row[stat] = "•"  # or "⚫" for filled circle
         
         # Set final score
         row['COMPUTE'] = int(round(total_score))
-        row['sort_value'] = int(round(total_score))  # For sorting purposes
+        row['sort_value'] = int(round(total_score))
         
         display_data.append(row)
     

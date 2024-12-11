@@ -162,27 +162,6 @@ def display_race_data(df, odds_df):
             city = race_df['city'].iloc[0]
             st.markdown(f"**Date:** {race_date} | **City:** {city}")
             
-            # Create computeform table in an expander
-            with st.expander("SHOW COMPUTEFORM DATA"):
-                computeform_df = create_computeform_table(race_df)
-                st.dataframe(
-                    computeform_df,
-                    use_container_width=True,
-                    column_config={
-                        'Horse': st.column_config.TextColumn('Horse', width='medium'),
-                        'horse_form_score': st.column_config.TextColumn('FORM', width='small', help="Form score trend"),
-                        'horse_potential_skill_score': st.column_config.TextColumn('POTENTIAL', width='small', help="Potential skill trend"),
-                        'horse_fitness_score': st.column_config.TextColumn('FITNESS', width='small', help="Fitness trend"),
-                        'horse_enthusiasm_score': st.column_config.TextColumn('ENTHUSIASM', width='small', help="Enthusiasm trend"),
-                        'horse_jumping_skill_score': st.column_config.TextColumn('JUMPING', width='small', help="Jumping skill trend"),
-                        'horse_going_skill_score': st.column_config.TextColumn('GOING', width='small', help="Going skill trend"),
-                        'horse_distance_skill_score': st.column_config.TextColumn('DISTANCE', width='small', help="Distance skill trend"),
-                        'jockey_skill_score': st.column_config.TextColumn('JOCKEY', width='small', help="Jockey skill trend"),
-                        'trainer_skill_score': st.column_config.TextColumn('TRAINER', width='small', help="Trainer skill trend"),
-                        'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score"),
-                    }
-                )
-            
             # Display main race data
             display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 
                                 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 
@@ -260,9 +239,28 @@ def display_race_data(df, odds_df):
                         name=horse_name,
                         visible='legendonly' if horse_name not in initial_horses else True
                     )
-                
-                st.plotly_chart(fig, use_container_width=True)
-            
+                # Create computeform table in an expander
+                with st.expander("SHOW ODDS MOVEMENT"):
+                    st.plotly_chart(fig, use_container_width=True)
+                with st.expander("SHOW SKILLS DATA"):
+                    computeform_df = create_computeform_table(race_df)
+                    st.dataframe(
+                        computeform_df,
+                        use_container_width=True,
+                        column_config={
+                        'Horse': st.column_config.TextColumn('Horse', width='medium'),
+                        'horse_form_score': st.column_config.TextColumn('FORM', width='small', help="Form score trend", justify="center"),
+                        'horse_potential_skill_score': st.column_config.TextColumn('POTENTIAL', width='small', help="Potential skill trend", justify="center"),
+                        'horse_fitness_score': st.column_config.TextColumn('FITNESS', width='small', help="Fitness trend", justify="center"),
+                        'horse_enthusiasm_score': st.column_config.TextColumn('ENTHUSIASM', width='small', help="Enthusiasm trend", justify="center"),
+                        'horse_jumping_skill_score': st.column_config.TextColumn('JUMPING', width='small', help="Jumping skill trend", justify="center"),
+                        'horse_going_skill_score': st.column_config.TextColumn('GOING', width='small', help="Going skill trend", justify="center"),
+                        'horse_distance_skill_score': st.column_config.TextColumn('DISTANCE', width='small', help="Distance skill trend", justify="center"),
+                        'jockey_skill_score': st.column_config.TextColumn('JOCKEY', width='small', help="Jockey skill trend", justify="center"),
+                        'trainer_skill_score': st.column_config.TextColumn('TRAINER', width='small', help="Trainer skill trend", justify="center"),
+                        'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score"),
+                    }
+                )
             st.markdown("---")  # Add a separator between races
     else:
         st.info("Please select at least one race name to display the data.")

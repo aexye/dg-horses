@@ -46,10 +46,6 @@ def get_data_uk():
         
         df = pd.DataFrame(response_gb.data)
         
-        # Debug: Print columns and first row
-        st.write("Available columns:", df.columns.tolist())
-        st.write("First row sample:", df.iloc[0].to_dict())
-        
         df['race_date'] = pd.to_datetime(df['race_date'])
         df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint', 
                             'last_5_positions': 'Last 5 races', 'draw_norm': 'Draw', 'odds_predicted_intial': 'Odds predicted (raw)',
@@ -107,7 +103,7 @@ def create_computeform_table(race_df):
         base_scores = [horse[stat[0]] for stat in stats]
         total_score = sum(base_scores)
         
-        if total_score < 80:  # Threshold for "not enough data"
+        if total_score < 5:  # Threshold for "not enough data"
             row['COMPUTE'] = "Not enough data"
             display_data.append(row)
             continue
@@ -149,10 +145,14 @@ def display_race_data(df, odds_df):
             st.markdown(f"### {race}")
             race_df = df[df['race_name'] == race]
             
-            # Get the race_id for the current race
+            # Get the race_id for this race
             race_id = race_df['race_id'].iloc[0]
-            # Filter odds data for current race
+            
+            # Filter odds data for this race
             race_odds_df = odds_df[odds_df['race_id'] == race_id]
+            #join the two dataframes on horse_id
+            race_odds_df = race_odds_df.rename(columns={'horse_link': 'horse_id'})
+            race_odds_df = pd.merge(race_odds_df, race_df, on=['horse_id', 'race_id'], how='left')
             
             # Display race details
             race_date = race_df['race_date'].iloc[0].strftime('%Y-%m-%d')
@@ -193,12 +193,12 @@ def display_race_data(df, odds_df):
             display_df_prob.index += 1
             st.dataframe(display_df_prob, use_container_width=True)
             
-            # Display odds movement chart
+            # Move the chart creation inside the race loop
             if not race_odds_df.empty:
                 # Randomly select 6 horses to display initially
                 import random
                 all_horses = race_odds_df['Horse'].unique()
-                initial_horses = random.sample(list(all_horses), min(6, len(all_horses)))
+                initial_horses = random.sample(list(all_horses), min(6, len(all_horses)))  # Added min() to handle races with fewer than 6 horses
                 
                 fig = px.line(
                     race_odds_df,
@@ -260,7 +260,7 @@ def display_race_data(df, odds_df):
                 
                 st.plotly_chart(fig, use_container_width=True)
             
-            st.markdown("---")
+            st.markdown("---")  # Add a separator between races
     else:
         st.info("Please select at least one race name to display the data.")
 

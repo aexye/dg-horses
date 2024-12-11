@@ -28,7 +28,21 @@ supabase, bq_client = init_clients()
 @st.cache_data(ttl=600)
 def get_data_uk():
     try:
-        response_gb = supabase.table('uk_horse_racing_full').select('race_date', 'race_id', 'horse_id', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob').execute()
+        response_gb = supabase.table('uk_horse_racing_full').select(
+            'race_date', 'race_id', 'horse_id', 'race_name', 'city', 'horse', 'jockey',
+            'odds', 'odds_predicted', 'horse_num', 'positive_hint', 'draw_norm',
+            'last_5_positions', 'odds_predicted_intial', 'winner_prob', 'trifecta_prob',
+            'quinella_prob', 'place_prob', 'last_place_prob',
+            'horse_form_score', 'horse_form_score_diff',
+            'horse_potential_skill_score', 'horse_potential_skill_score_diff', 
+            'horse_fitness_score', 'horse_fitness_score_diff',
+            'horse_enthusiasm_score', 'horse_enthusiasm_score_diff',
+            'horse_jumping_skill_score', 'horse_jumping_skill_score_diff',
+            'horse_going_skill_score', 'horse_going_skill_score_diff',
+            'horse_distance_skill_score', 'horse_distance_skill_score_diff',
+            'jockey_skill_score', 'jockey_skill_score_diff',
+            'trainer_skill_score', 'trainer_skill_score_diff'
+        ).execute()
         df = pd.DataFrame(response_gb.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
         df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint', 
@@ -62,6 +76,58 @@ def get_bigquery_odds_data():
         st.error(f"Error fetching data from BigQuery: {e}")
         return pd.DataFrame()
 
+def create_computeform_table(race_df):
+    # Define the stats to check
+    stats = [
+        ('horse_form_score', 'horse_form_score_diff'),
+        ('horse_potential_skill_score', 'horse_potential_skill_score_diff'),
+        ('horse_fitness_score', 'horse_fitness_score_diff'),
+        ('horse_enthusiasm_score', 'horse_enthusiasm_score_diff'),
+        ('horse_jumping_skill_score', 'horse_jumping_skill_score_diff'),
+        ('horse_going_skill_score', 'horse_going_skill_score_diff'),
+        ('horse_distance_skill_score', 'horse_distance_skill_score_diff'),
+        ('jockey_skill_score', 'jockey_skill_score_diff'),
+        ('trainer_skill_score', 'trainer_skill_score_diff')
+    ]
+    
+    # Create a new dataframe for display
+    display_data = []
+    
+    for _, horse in race_df.iterrows():
+        row = {'Horse': horse['Horse']}
+        
+        # Calculate base score (sum of all stat scores)
+        base_scores = [horse[stat[0]] for stat in stats]
+        total_score = sum(base_scores)
+        row['BASE'] = int(round(total_score))
+        
+        if total_score < 80:  # Threshold for "not enough data"
+            row['COMPUTE'] = "Not enough data"
+            display_data.append(row)
+            continue
+            
+        # Process each stat difference
+        for stat, diff in stats:
+            diff_value = horse[diff]
+            if diff_value > 0:
+                row[stat] = "+1"
+            elif diff_value < 0:
+                row[stat] = "-1"
+            else:
+                row[stat] = "0"
+        
+        # Calculate final score
+        final_score = sum(int(v) for v in row.values() if isinstance(v, str) and v.replace('+','').replace('-','').isdigit())
+        row['COMPUTE'] = int(round(row['BASE'] + final_score))
+        
+        display_data.append(row)
+    
+    # Convert to dataframe and sort by COMPUTE score
+    result_df = pd.DataFrame(display_data)
+    result_df = result_df.sort_values('COMPUTE', ascending=False)
+    
+    return result_df
+
 def display_race_data(df, odds_df):
     st.subheader("Race Data")
     print(df.head())
@@ -75,109 +141,132 @@ def display_race_data(df, odds_df):
     
     if selected:
         for race in selected:
-            race_df = df[df['race_name'] == race]
-            
-            # Get the race_id for this race
-            race_id = race_df['race_id'].iloc[0]
-            
-            # Filter odds data for this race
-            race_odds_df = odds_df[odds_df['race_id'] == race_id]
-            #join the two dataframes on horse_id
-            race_odds_df = race_odds_df.rename(columns={'horse_link': 'horse_id'})
-            race_odds_df = pd.merge(race_odds_df, race_df, on=['horse_id', 'race_id'], how='left')
-            
-            race_df['Odds difference'] = np.absolute(race_df['Initial market odds'] - race_df['Odds predicted'])
-            odds_diff = race_df['Odds difference'].sum().round(2)
-            #calculate over round
-            race_df['market_overround'] = 1/race_df['Initial market odds']
-            race_df['our_overround'] = 1/race_df['Odds predicted']
-            market_ovr = (race_df['market_overround'].sum()).round(2)
-            our_ovr = race_df['our_overround'].sum().round(2)
-            
-            # Get the race details for the header
-            race_date = race_df['race_date'].iloc[0].strftime('%Y-%m-%d')
-            city = race_df['city'].iloc[0]
-            
-            # Create a header for each race
-            st.markdown(f"### {race}")
-            st.markdown(f"**Date:** {race_date} | **City:** {city}")
-            
-            # Display only horse, jockey, and odds
-            display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 'Betting hint']].reset_index(drop=True)
-            display_df_prob = race_df[['Horse', 'Win probability', 'Top2 probability', 'Top3 probability', 'Last place probability']]
-            display_df.index += 1
-            display_df_prob.index += 1
-            st.dataframe(display_df, use_container_width=True)
-            st.dataframe(display_df_prob, use_container_width=True)
-            
-            # Move the chart creation inside the race loop
-            if not race_odds_df.empty:
-                # Randomly select 6 horses to display initially
-                import random
-                all_horses = race_odds_df['Horse'].unique()
-                initial_horses = random.sample(list(all_horses), min(6, len(all_horses)))  # Added min() to handle races with fewer than 6 horses
+            with st.expander(f"🏇 {race}", expanded=False):
+                race_df = df[df['race_name'] == race]
                 
-                fig = px.line(
-                    race_odds_df,
-                    x='scraped_time',
-                    y='odds',
-                    color='Horse',
-                    labels={
-                        'scraped_time': 'Time',
-                        'odds': 'Odds',
-                        'Horse': 'Horse'
-                    },
-                    title=f'Odds Movement - {race}',  # Added race name to title for clarity
-                    log_y=True
-                )
-                
-                # Add markers (dots) to the lines
-                fig.update_traces(
-                    mode='lines+markers',
-                    marker=dict(size=6),
-                    line=dict(width=2)
-                )
-                
-                # Customize the layout
-                fig.update_layout(
-                    xaxis_title="Time",
-                    yaxis_title="Odds",
-                    legend_title="Horses",
-                    height=450,
-                    yaxis={
-                        'autorange': 'reversed',
-                        'type': 'log',
-                        'gridwidth': 0.5,
-                        'gridcolor': 'rgba(128, 128, 128, 0.2)',
-                    },
-                    xaxis={
-                        'gridwidth': 0.5,
-                        'gridcolor': 'rgba(128, 128, 128, 0.2)',
-                    },
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    font=dict(size=12),
-                    legend=dict(
-                        yanchor="top",
-                        y=0.99,
-                        xanchor="left",
-                        x=1.02,
-                        itemsizing='constant'
-                    )
-                )
-                
-                # Add horse names to legend and hide non-selected horses
-                horse_names = race_df.set_index('horse_id')['Horse'].to_dict()
-                for trace in fig.data:
-                    horse_name = horse_names.get(trace.name, trace.name)
-                    trace.update(
-                        name=horse_name,
-                        visible='legendonly' if horse_name not in initial_horses else True
+                # Add computeform table
+                with st.expander("SHOW COMPUTEFORM DATA", expanded=False):
+                    computeform_df = create_computeform_table(race_df)
+                    st.dataframe(
+                        computeform_df,
+                        use_container_width=True,
+                        column_config={
+                            'Horse': st.column_config.TextColumn('Horse'),
+                            'BASE': st.column_config.NumberColumn('ABILITY'),
+                            'horse_form_score': st.column_config.TextColumn('FORM'),
+                            'horse_potential_skill_score': st.column_config.TextColumn('POTENTIAL'),
+                            'horse_fitness_score': st.column_config.TextColumn('FITNESS'),
+                            'horse_enthusiasm_score': st.column_config.TextColumn('ENTHUSIASM'),
+                            'horse_jumping_skill_score': st.column_config.TextColumn('JUMPING'),
+                            'horse_going_skill_score': st.column_config.TextColumn('GOING'),
+                            'horse_distance_skill_score': st.column_config.TextColumn('DISTANCE'),
+                            'jockey_skill_score': st.column_config.TextColumn('JOCKEY'),
+                            'trainer_skill_score': st.column_config.TextColumn('TRAINER'),
+                            'COMPUTE': st.column_config.NumberColumn('SCORE'),
+                        }
                     )
                 
-                st.plotly_chart(fig, use_container_width=True)
-            
-            st.markdown("---")  # Add a separator between races
+                # Get the race_id for this race
+                race_id = race_df['race_id'].iloc[0]
+                
+                # Filter odds data for this race
+                race_odds_df = odds_df[odds_df['race_id'] == race_id]
+                #join the two dataframes on horse_id
+                race_odds_df = race_odds_df.rename(columns={'horse_link': 'horse_id'})
+                race_odds_df = pd.merge(race_odds_df, race_df, on=['horse_id', 'race_id'], how='left')
+                
+                race_df['Odds difference'] = np.absolute(race_df['Initial market odds'] - race_df['Odds predicted'])
+                odds_diff = race_df['Odds difference'].sum().round(2)
+                #calculate over round
+                race_df['market_overround'] = 1/race_df['Initial market odds']
+                race_df['our_overround'] = 1/race_df['Odds predicted']
+                market_ovr = (race_df['market_overround'].sum()).round(2)
+                our_ovr = race_df['our_overround'].sum().round(2)
+                
+                # Get the race details for the header
+                race_date = race_df['race_date'].iloc[0].strftime('%Y-%m-%d')
+                city = race_df['city'].iloc[0]
+                
+                # Create a header for each race
+                st.markdown(f"### {race}")
+                st.markdown(f"**Date:** {race_date} | **City:** {city}")
+                
+                # Display only horse, jockey, and odds
+                display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 'Betting hint']].reset_index(drop=True)
+                display_df_prob = race_df[['Horse', 'Win probability', 'Top2 probability', 'Top3 probability', 'Last place probability']]
+                display_df.index += 1
+                display_df_prob.index += 1
+                st.dataframe(display_df, use_container_width=True)
+                st.dataframe(display_df_prob, use_container_width=True)
+                
+                # Move the chart creation inside the race loop
+                if not race_odds_df.empty:
+                    # Randomly select 6 horses to display initially
+                    import random
+                    all_horses = race_odds_df['Horse'].unique()
+                    initial_horses = random.sample(list(all_horses), min(6, len(all_horses)))  # Added min() to handle races with fewer than 6 horses
+                    
+                    fig = px.line(
+                        race_odds_df,
+                        x='scraped_time',
+                        y='odds',
+                        color='Horse',
+                        labels={
+                            'scraped_time': 'Time',
+                            'odds': 'Odds',
+                            'Horse': 'Horse'
+                        },
+                        title=f'Odds Movement - {race}',  # Added race name to title for clarity
+                        log_y=True
+                    )
+                    
+                    # Add markers (dots) to the lines
+                    fig.update_traces(
+                        mode='lines+markers',
+                        marker=dict(size=6),
+                        line=dict(width=2)
+                    )
+                    
+                    # Customize the layout
+                    fig.update_layout(
+                        xaxis_title="Time",
+                        yaxis_title="Odds",
+                        legend_title="Horses",
+                        height=450,
+                        yaxis={
+                            'autorange': 'reversed',
+                            'type': 'log',
+                            'gridwidth': 0.5,
+                            'gridcolor': 'rgba(128, 128, 128, 0.2)',
+                        },
+                        xaxis={
+                            'gridwidth': 0.5,
+                            'gridcolor': 'rgba(128, 128, 128, 0.2)',
+                        },
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(size=12),
+                        legend=dict(
+                            yanchor="top",
+                            y=0.99,
+                            xanchor="left",
+                            x=1.02,
+                            itemsizing='constant'
+                        )
+                    )
+                    
+                    # Add horse names to legend and hide non-selected horses
+                    horse_names = race_df.set_index('horse_id')['Horse'].to_dict()
+                    for trace in fig.data:
+                        horse_name = horse_names.get(trace.name, trace.name)
+                        trace.update(
+                            name=horse_name,
+                            visible='legendonly' if horse_name not in initial_horses else True
+                        )
+                    
+                    st.plotly_chart(fig, use_container_width=True)
+                
+                st.markdown("---")  # Add a separator between races
     else:
         st.info("Please select at least one race name to display the data.")
 

@@ -102,7 +102,7 @@ def create_computeform_table(race_df):
         # Calculate total score (sum of all stat scores)
         total_score = sum(horse[stat[0]] for stat in stats)
         
-        if total_score < 80:  # Threshold for "not enough data"
+        if total_score < 5:  # Threshold for "not enough data"
             row['COMPUTE'] = "Not enough data"
             display_data.append(row)
             continue

@@ -149,6 +149,11 @@ def display_race_data(df, odds_df):
             st.markdown(f"### {race}")
             race_df = df[df['race_name'] == race]
             
+            # Get the race_id for the current race
+            race_id = race_df['race_id'].iloc[0]
+            # Filter odds data for current race
+            race_odds_df = odds_df[odds_df['race_id'] == race_id]
+            
             # Display race details
             race_date = race_df['race_date'].iloc[0].strftime('%Y-%m-%d')
             city = race_df['city'].iloc[0]
@@ -193,7 +198,7 @@ def display_race_data(df, odds_df):
                 # Randomly select 6 horses to display initially
                 import random
                 all_horses = race_odds_df['Horse'].unique()
-                initial_horses = random.sample(list(all_horses), min(6, len(all_horses)))  # Added min() to handle races with fewer than 6 horses
+                initial_horses = random.sample(list(all_horses), min(6, len(all_horses)))
                 
                 fig = px.line(
                     race_odds_df,

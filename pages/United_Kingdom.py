@@ -104,8 +104,7 @@ def create_computeform_table(race_df):
         
         if total_score < 5:  # Threshold for "not enough data"
             row['COMPUTE'] = "Not enough data"
-            row['sort_value'] = -1  # For sorting purposes
-            # Fill all stat columns with "None" for not enough data
+            row['sort_value'] = -1
             for stat, _ in stats:
                 row[stat] = "None"
             display_data.append(row)
@@ -115,11 +114,11 @@ def create_computeform_table(race_df):
         for stat, diff in stats:
             diff_value = horse[diff]
             if diff_value > 0:
-                row[stat] = "↓"  # or "⬇️" for emoji
+                row[stat] = "▲"  # Red down triangle
             elif diff_value < 0:
-                row[stat] = "↑"  # or "⬆️" for emoji
+                row[stat] = "🔻"  # Red up triangle
             else:
-                row[stat] = "•"  # or "⚫" for filled circle
+                row[stat] = "━"  # White circle
         
         # Set final score
         row['COMPUTE'] = int(round(total_score))
@@ -130,8 +129,6 @@ def create_computeform_table(race_df):
     # Convert to dataframe and sort by sort_value
     result_df = pd.DataFrame(display_data)
     result_df = result_df.sort_values('sort_value', ascending=False)
-    
-    # Drop the sort_value column before returning
     result_df = result_df.drop('sort_value', axis=1)
     
     return result_df
@@ -172,17 +169,17 @@ def display_race_data(df, odds_df):
                     computeform_df,
                     use_container_width=True,
                     column_config={
-                        'Horse': st.column_config.TextColumn('Horse'),
-                        'horse_form_score': st.column_config.TextColumn('FORM'),
-                        'horse_potential_skill_score': st.column_config.TextColumn('POTENTIAL'),
-                        'horse_fitness_score': st.column_config.TextColumn('FITNESS'),
-                        'horse_enthusiasm_score': st.column_config.TextColumn('ENTHUSIASM'),
-                        'horse_jumping_skill_score': st.column_config.TextColumn('JUMPING'),
-                        'horse_going_skill_score': st.column_config.TextColumn('GOING'),
-                        'horse_distance_skill_score': st.column_config.TextColumn('DISTANCE'),
-                        'jockey_skill_score': st.column_config.TextColumn('JOCKEY'),
-                        'trainer_skill_score': st.column_config.TextColumn('TRAINER'),
-                        'COMPUTE': st.column_config.NumberColumn('DG SCORE'),
+                        'Horse': st.column_config.TextColumn('Horse', width='medium'),
+                        'horse_form_score': st.column_config.TextColumn('FORM', width='small', help="Form score trend", justify="center"),
+                        'horse_potential_skill_score': st.column_config.TextColumn('POTENTIAL', width='small', help="Potential skill trend", justify="center"),
+                        'horse_fitness_score': st.column_config.TextColumn('FITNESS', width='small', help="Fitness trend", justify="center"),
+                        'horse_enthusiasm_score': st.column_config.TextColumn('ENTHUSIASM', width='small', help="Enthusiasm trend", justify="center"),
+                        'horse_jumping_skill_score': st.column_config.TextColumn('JUMPING', width='small', help="Jumping skill trend", justify="center"),
+                        'horse_going_skill_score': st.column_config.TextColumn('GOING', width='small', help="Going skill trend", justify="center"),
+                        'horse_distance_skill_score': st.column_config.TextColumn('DISTANCE', width='small', help="Distance skill trend", justify="center"),
+                        'jockey_skill_score': st.column_config.TextColumn('JOCKEY', width='small', help="Jockey skill trend", justify="center"),
+                        'trainer_skill_score': st.column_config.TextColumn('TRAINER', width='small', help="Trainer skill trend", justify="center"),
+                        'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score"),
                     }
                 )
             

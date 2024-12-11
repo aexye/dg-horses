@@ -104,6 +104,7 @@ def create_computeform_table(race_df):
         
         if total_score < 5:  # Threshold for "not enough data"
             row['COMPUTE'] = "Not enough data"
+            row['sort_value'] = -1  # For sorting purposes
             display_data.append(row)
             continue
             
@@ -119,12 +120,16 @@ def create_computeform_table(race_df):
         
         # Set final score
         row['COMPUTE'] = int(round(total_score))
+        row['sort_value'] = int(round(total_score))  # For sorting purposes
         
         display_data.append(row)
     
-    # Convert to dataframe and sort by COMPUTE score
+    # Convert to dataframe and sort by sort_value
     result_df = pd.DataFrame(display_data)
-    result_df = result_df.sort_values('COMPUTE', ascending=False)
+    result_df = result_df.sort_values('sort_value', ascending=False)
+    
+    # Drop the sort_value column before returning
+    result_df = result_df.drop('sort_value', axis=1)
     
     return result_df
 

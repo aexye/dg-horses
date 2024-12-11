@@ -114,9 +114,9 @@ def create_computeform_table(race_df):
         for stat, diff in stats:
             diff_value = horse[diff]
             if diff_value > 0:
-                row[stat] = "▲"  # Red down triangle
+                row[stat] = "⬆️"  # Red down triangle
             elif diff_value < 0:
-                row[stat] = "🔻"  # Red up triangle
+                row[stat] = "⬇️"  # Red up triangle
             else:
                 row[stat] = "━"  # White circle
         

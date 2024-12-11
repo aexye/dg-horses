@@ -99,7 +99,6 @@ def create_computeform_table(race_df):
         # Calculate base score (sum of all stat scores)
         base_scores = [horse[stat[0]] for stat in stats]
         total_score = sum(base_scores)
-        row['BASE'] = int(round(total_score))
         
         if total_score < 80:  # Threshold for "not enough data"
             row['COMPUTE'] = "Not enough data"
@@ -110,9 +109,9 @@ def create_computeform_table(race_df):
         for stat, diff in stats:
             diff_value = horse[diff]
             if diff_value > 0:
-                row[stat] = "+1"
+                row[stat] = "-"
             elif diff_value < 0:
-                row[stat] = "-1"
+                row[stat] = "+"
             else:
                 row[stat] = "0"
         
@@ -156,7 +155,6 @@ def display_race_data(df, odds_df):
                     use_container_width=True,
                     column_config={
                         'Horse': st.column_config.TextColumn('Horse'),
-                        'BASE': st.column_config.NumberColumn('ABILITY'),
                         'horse_form_score': st.column_config.TextColumn('FORM'),
                         'horse_potential_skill_score': st.column_config.TextColumn('POTENTIAL'),
                         'horse_fitness_score': st.column_config.TextColumn('FITNESS'),
@@ -166,7 +164,7 @@ def display_race_data(df, odds_df):
                         'horse_distance_skill_score': st.column_config.TextColumn('DISTANCE'),
                         'jockey_skill_score': st.column_config.TextColumn('JOCKEY'),
                         'trainer_skill_score': st.column_config.TextColumn('TRAINER'),
-                        'COMPUTE': st.column_config.NumberColumn('SCORE'),
+                        'COMPUTE': st.column_config.NumberColumn('DG SCORE'),
                     }
                 )
             

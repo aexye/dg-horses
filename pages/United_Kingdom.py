@@ -110,9 +110,8 @@ def create_computeform_table(race_df):
             continue
             
         # Process each stat
-        for stat, diff in STATS:
-            row[stat] = int(round(horse[stat]))  # Store actual score as integer
-            row[f"{stat}_diff"] = horse[diff]  # Store diff for styling
+        for stat, _ in STATS:
+            row[stat] = int(round(horse[stat]))
         
         row['COMPUTE'] = int(round(total_score))
         display_data.append(row)
@@ -125,32 +124,30 @@ def create_computeform_table(race_df):
     result_df = result_df.sort_values('sort_value', ascending=False)
     result_df = result_df.drop('sort_value', axis=1)
     
-    # Create the style DataFrame with the same columns as result_df
-    style_df = pd.DataFrame('', index=result_df.index, columns=result_df.columns)
-    
-    # Apply styles based on diff values
-    for stat, diff in STATS:
-        if f"{stat}_diff" in race_df.columns:  # Check in original race_df instead
-            mask_up = race_df[f"{stat}_diff"] < 0
-            mask_down = race_df[f"{stat}_diff"] > 0
-            mask_neutral = race_df[f"{stat}_diff"] == 0
+    # Create a function to apply styles
+    def apply_styles(col):
+        if col.name not in [stat[0] for stat in STATS]:
+            return [''] * len(col)
             
-            # Only apply styling if the stat column exists in result_df
-            if stat in result_df.columns:
-                style_df.loc[mask_up, stat] = 'background-color: #d4edda; color: #155724'
-                style_df.loc[mask_down, stat] = 'background-color: #f8d7da; color: #721c24'
-                style_df.loc[mask_neutral, stat] = 'background-color: #f8f9fa'
+        styles = []
+        for idx, _ in col.items():
+            horse_name = result_df.loc[idx, 'Horse']
+            horse_idx = race_df[race_df['Horse'] == horse_name].index[0]
+            
+            diff = race_df.loc[horse_idx, f"{col.name}_diff"]
+            if diff < 0:
+                styles.append('background-color: #d4edda; color: #155724')
+            elif diff > 0:
+                styles.append('background-color: #f8d7da; color: #721c24')
+            else:
+                styles.append('background-color: #f8f9fa')
+        return styles
     
-    # Drop the diff columns before display
-    for stat, _ in STATS:
-        if f"{stat}_diff" in result_df.columns:
-            result_df = result_df.drop(f"{stat}_diff", axis=1)
-    
-    # Apply styling and number formatting
-    styled_df = result_df.style.apply(lambda x: style_df.loc[x.index, x.name], axis=0)
+    # Apply styling
+    styled_df = result_df.style.apply(apply_styles)
     
     # Format numbers as integers
-    number_format = {stat: '{:,.0f}' for stat, _ in STATS}
+    number_format = {stat[0]: '{:,.0f}' for stat in STATS}
     number_format['COMPUTE'] = '{:,.0f}'
     styled_df = styled_df.format(number_format)
     

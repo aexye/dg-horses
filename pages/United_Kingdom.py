@@ -104,45 +104,53 @@ def create_computeform_table(race_df):
         
         if total_score < 5:
             row['COMPUTE'] = "Not enough data"
-            row['sort_value'] = -1
             for stat, _ in STATS:
-                row[stat] = "None"
+                row[stat] = None
             display_data.append(row)
             continue
             
         # Process each stat
         for stat, diff in STATS:
-            base_score = int(round(horse[stat]))  # Get the actual score
-            diff_value = horse[diff]
-            
-            # Create colored background based on diff
-            if diff_value > 0:
-                color = "background-color: #ffcdd2"  # Light red
-            elif diff_value < 0:
-                color = "background-color: #c8e6c9"  # Light green
-            else:
-                color = "background-color: #f5f5f5"  # Light gray
-                
-            # Store both the value and its styling
-            row[stat] = f"{base_score}:{color}"
+            row[stat] = int(round(horse[stat]))  # Store actual score
+            row[f"{stat}_diff"] = horse[diff]  # Store diff for styling
         
         row['COMPUTE'] = int(round(total_score))
-        row['sort_value'] = int(round(total_score))
-        
         display_data.append(row)
     
     # Convert to dataframe and sort
     result_df = pd.DataFrame(display_data)
+    
+    # Sort by COMPUTE, handling "Not enough data"
+    result_df['sort_value'] = pd.to_numeric(result_df['COMPUTE'], errors='coerce')
     result_df = result_df.sort_values('sort_value', ascending=False)
     result_df = result_df.drop('sort_value', axis=1)
     
-    # Split the value and style
-    for stat, _ in STATS:
-        if stat in result_df.columns:
-            result_df[f"{stat}_style"] = result_df[stat].str.split(':').str[1]
-            result_df[stat] = result_df[stat].str.split(':').str[0]
+    # Define styling function
+    def style_dataframe(df):
+        # Initialize an empty DataFrame with the same shape as the input
+        styled = pd.DataFrame('', index=df.index, columns=df.columns)
+        
+        for stat, _ in STATS:
+            if f"{stat}_diff" in df.columns:
+                mask_up = df[f"{stat}_diff"] < 0
+                mask_down = df[f"{stat}_diff"] > 0
+                mask_neutral = df[f"{stat}_diff"] == 0
+                
+                styled.loc[mask_up, stat] = 'background-color: #c8e6c9'  # Light green
+                styled.loc[mask_down, stat] = 'background-color: #ffcdd2'  # Light red
+                styled.loc[mask_neutral, stat] = 'background-color: #f5f5f5'  # Light gray
+        
+        return styled
     
-    return result_df
+    # Drop the diff columns before display
+    for stat, _ in STATS:
+        if f"{stat}_diff" in result_df.columns:
+            result_df = result_df.drop(f"{stat}_diff", axis=1)
+    
+    # Apply styling
+    styled_df = result_df.style.apply(style_dataframe, axis=None)
+    
+    return styled_df
 
 def display_race_data(df, odds_df):
     st.subheader("Race Data")
@@ -271,8 +279,7 @@ def display_race_data(df, odds_df):
                             'trainer_skill_score': st.column_config.NumberColumn('TRAINER', width='small', help="Trainer skill score"),
                             'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score"),
                         },
-                        hide_index=True,
-                        style=computeform_df[[f"{stat}_style" for stat, _ in STATS]].to_dict('records')
+                        hide_index=True
                     )
             st.markdown("---")  # Add a separator between races
     else:

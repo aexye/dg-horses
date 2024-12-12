@@ -79,20 +79,20 @@ def get_bigquery_odds_data():
         st.error(f"Error fetching data from BigQuery: {e}")
         return pd.DataFrame()
 
+# Define stats at module level
+STATS = [
+    ('horse_form_score', 'horse_form_score_diff'),
+    ('horse_potential_skill_score', 'horse_potential_skill_score_diff'),
+    ('horse_fitness_score', 'horse_fitness_score_diff'),
+    ('horse_enthusiasm_score', 'horse_enthusiasm_score_diff'),
+    ('horse_jumping_skill_score', 'horse_jumping_skill_score_diff'),
+    ('horse_going_skill_score', 'horse_going_skill_score_diff'),
+    ('horse_distance_skill_score', 'horse_distance_skill_score_diff'),
+    ('jockey_skill_score', 'jockey_skill_score_diff'),
+    ('trainer_skill_score', 'trainer_skill_score_diff')
+]
+
 def create_computeform_table(race_df):
-    # Define the stats to check
-    stats = [
-        ('horse_form_score', 'horse_form_score_diff'),
-        ('horse_potential_skill_score', 'horse_potential_skill_score_diff'),
-        ('horse_fitness_score', 'horse_fitness_score_diff'),
-        ('horse_enthusiasm_score', 'horse_enthusiasm_score_diff'),
-        ('horse_jumping_skill_score', 'horse_jumping_skill_score_diff'),
-        ('horse_going_skill_score', 'horse_going_skill_score_diff'),
-        ('horse_distance_skill_score', 'horse_distance_skill_score_diff'),
-        ('jockey_skill_score', 'jockey_skill_score_diff'),
-        ('trainer_skill_score', 'trainer_skill_score_diff')
-    ]
-    
     # Create a new dataframe for display
     display_data = []
     
@@ -100,18 +100,18 @@ def create_computeform_table(race_df):
         row = {'Horse': horse['Horse']}
         
         # Calculate total score
-        total_score = sum(horse[stat[0]] for stat in stats)
+        total_score = sum(horse[stat[0]] for stat in STATS)
         
         if total_score < 5:
             row['COMPUTE'] = "Not enough data"
             row['sort_value'] = -1
-            for stat, _ in stats:
+            for stat, _ in STATS:
                 row[stat] = "None"
             display_data.append(row)
             continue
             
         # Process each stat
-        for stat, diff in stats:
+        for stat, diff in STATS:
             base_score = int(round(horse[stat]))  # Get the actual score
             diff_value = horse[diff]
             
@@ -137,7 +137,7 @@ def create_computeform_table(race_df):
     result_df = result_df.drop('sort_value', axis=1)
     
     # Split the value and style
-    for stat, _ in stats:
+    for stat, _ in STATS:
         if stat in result_df.columns:
             result_df[f"{stat}_style"] = result_df[stat].str.split(':').str[1]
             result_df[stat] = result_df[stat].str.split(':').str[0]
@@ -272,8 +272,7 @@ def display_race_data(df, odds_df):
                             'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score"),
                         },
                         hide_index=True,
-                        # Apply the styles
-                        style=computeform_df[[f"{stat}_style" for stat, _ in stats]].to_dict('records')
+                        style=computeform_df[[f"{stat}_style" for stat, _ in STATS]].to_dict('records')
                     )
             st.markdown("---")  # Add a separator between races
     else:

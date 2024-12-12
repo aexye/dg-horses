@@ -111,7 +111,7 @@ def create_computeform_table(race_df):
             
         # Process each stat
         for stat, diff in STATS:
-            row[stat] = int(round(horse[stat]))  # Store actual score
+            row[stat] = int(round(horse[stat]))  # Store actual score as integer
             row[f"{stat}_diff"] = horse[diff]  # Store diff for styling
         
         row['COMPUTE'] = int(round(total_score))
@@ -125,30 +125,41 @@ def create_computeform_table(race_df):
     result_df = result_df.sort_values('sort_value', ascending=False)
     result_df = result_df.drop('sort_value', axis=1)
     
-    # Define styling function
-    def style_dataframe(df):
-        # Initialize an empty DataFrame with the same shape as the input
-        styled = pd.DataFrame('', index=df.index, columns=df.columns)
-        
-        for stat, _ in STATS:
-            if f"{stat}_diff" in df.columns:
-                mask_up = df[f"{stat}_diff"] < 0
-                mask_down = df[f"{stat}_diff"] > 0
-                mask_neutral = df[f"{stat}_diff"] == 0
+    def style_cell(row):
+        styles = []
+        for col in row.index:
+            if col == 'Horse' or col == 'COMPUTE' or '_diff' in col:
+                styles.append('')
+                continue
                 
-                styled.loc[mask_up, stat] = 'background-color: #c8e6c9'  # Light green
-                styled.loc[mask_down, stat] = 'background-color: #ffcdd2'  # Light red
-                styled.loc[mask_neutral, stat] = 'background-color: #f5f5f5'  # Light gray
-        
-        return styled
+            diff_col = f"{col}_diff"
+            if diff_col not in row.index:
+                styles.append('')
+                continue
+                
+            diff_value = row[diff_col]
+            if diff_value > 0:
+                styles.append('background-color: #f8d7da; color: #721c24')  # Light red background, dark red text
+            elif diff_value < 0:
+                styles.append('background-color: #d4edda; color: #155724')  # Light green background, dark green text
+            else:
+                styles.append('background-color: #f8f9fa')  # Light gray background
+                
+        return styles
     
     # Drop the diff columns before display
+    styled_df = result_df.copy()
     for stat, _ in STATS:
-        if f"{stat}_diff" in result_df.columns:
-            result_df = result_df.drop(f"{stat}_diff", axis=1)
+        if f"{stat}_diff" in styled_df.columns:
+            styled_df = styled_df.drop(f"{stat}_diff", axis=1)
     
     # Apply styling
-    styled_df = result_df.style.apply(style_dataframe, axis=None)
+    styled_df = styled_df.style.apply(style_cell, axis=1)
+    
+    # Format numbers as integers
+    for stat, _ in STATS:
+        if stat in styled_df.data.columns:
+            styled_df = styled_df.format({stat: '{:.0f}'})
     
     return styled_df
 
@@ -268,16 +279,16 @@ def display_race_data(df, odds_df):
                         use_container_width=True,
                         column_config={
                             'Horse': st.column_config.TextColumn('Horse', width='medium'),
-                            'horse_form_score': st.column_config.NumberColumn('FORM', width='small', help="Form score"),
-                            'horse_potential_skill_score': st.column_config.NumberColumn('POTENTIAL', width='small', help="Potential skill score"),
-                            'horse_fitness_score': st.column_config.NumberColumn('FITNESS', width='small', help="Fitness score"),
-                            'horse_enthusiasm_score': st.column_config.NumberColumn('ENTHUSIASM', width='small', help="Enthusiasm score"),
-                            'horse_jumping_skill_score': st.column_config.NumberColumn('JUMPING', width='small', help="Jumping skill score"),
-                            'horse_going_skill_score': st.column_config.NumberColumn('GOING', width='small', help="Going skill score"),
-                            'horse_distance_skill_score': st.column_config.NumberColumn('DISTANCE', width='small', help="Distance skill score"),
-                            'jockey_skill_score': st.column_config.NumberColumn('JOCKEY', width='small', help="Jockey skill score"),
-                            'trainer_skill_score': st.column_config.NumberColumn('TRAINER', width='small', help="Trainer skill score"),
-                            'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score"),
+                            'horse_form_score': st.column_config.NumberColumn('FORM', width='small', help="Form score", format='%d'),
+                            'horse_potential_skill_score': st.column_config.NumberColumn('POTENTIAL', width='small', help="Potential skill score", format='%d'),
+                            'horse_fitness_score': st.column_config.NumberColumn('FITNESS', width='small', help="Fitness score", format='%d'),
+                            'horse_enthusiasm_score': st.column_config.NumberColumn('ENTHUSIASM', width='small', help="Enthusiasm score", format='%d'),
+                            'horse_jumping_skill_score': st.column_config.NumberColumn('JUMPING', width='small', help="Jumping skill score", format='%d'),
+                            'horse_going_skill_score': st.column_config.NumberColumn('GOING', width='small', help="Going skill score", format='%d'),
+                            'horse_distance_skill_score': st.column_config.NumberColumn('DISTANCE', width='small', help="Distance skill score", format='%d'),
+                            'jockey_skill_score': st.column_config.NumberColumn('JOCKEY', width='small', help="Jockey skill score", format='%d'),
+                            'trainer_skill_score': st.column_config.NumberColumn('TRAINER', width='small', help="Trainer skill score", format='%d'),
+                            'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score", format='%d'),
                         },
                         hide_index=True
                     )

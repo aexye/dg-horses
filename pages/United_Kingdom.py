@@ -130,7 +130,12 @@ def create_computeform_table(race_df):
             return [''] * len(col)
             
         styles = []
-        for idx, _ in col.items():
+        for idx, value in col.items():
+            # If value is None, use default background
+            if pd.isna(value):
+                styles.append('')
+                continue
+                
             horse_name = result_df.loc[idx, 'Horse']
             horse_idx = race_df[race_df['Horse'] == horse_name].index[0]
             
@@ -140,7 +145,7 @@ def create_computeform_table(race_df):
             elif diff > 0:
                 styles.append('background-color: #f8d7da; color: #721c24')
             else:
-                styles.append('background-color: #404040')
+                styles.append('background-color: #e9ecef')
         return styles
     
     # Apply styling

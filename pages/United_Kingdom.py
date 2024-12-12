@@ -99,10 +99,10 @@ def create_computeform_table(race_df):
     for _, horse in race_df.iterrows():
         row = {'Horse': horse['Horse']}
         
-        # Calculate total score (sum of all stat scores)
+        # Calculate total score
         total_score = sum(horse[stat[0]] for stat in stats)
         
-        if total_score < 5:  # Threshold for "not enough data"
+        if total_score < 5:
             row['COMPUTE'] = "Not enough data"
             row['sort_value'] = -1
             for stat, _ in stats:
@@ -110,26 +110,37 @@ def create_computeform_table(race_df):
             display_data.append(row)
             continue
             
-        # Process each stat difference
+        # Process each stat
         for stat, diff in stats:
+            base_score = int(round(horse[stat]))  # Get the actual score
             diff_value = horse[diff]
+            
+            # Create colored background based on diff
             if diff_value > 0:
-                row[stat] = "⬆️"  # Red down triangle
+                color = "background-color: #ffcdd2"  # Light red
             elif diff_value < 0:
-                row[stat] = "⬇️"  # Red up triangle
+                color = "background-color: #c8e6c9"  # Light green
             else:
-                row[stat] = "━"  # White circle
+                color = "background-color: #f5f5f5"  # Light gray
+                
+            # Store both the value and its styling
+            row[stat] = f"{base_score}:{color}"
         
-        # Set final score
         row['COMPUTE'] = int(round(total_score))
         row['sort_value'] = int(round(total_score))
         
         display_data.append(row)
     
-    # Convert to dataframe and sort by sort_value
+    # Convert to dataframe and sort
     result_df = pd.DataFrame(display_data)
     result_df = result_df.sort_values('sort_value', ascending=False)
     result_df = result_df.drop('sort_value', axis=1)
+    
+    # Split the value and style
+    for stat, _ in stats:
+        if stat in result_df.columns:
+            result_df[f"{stat}_style"] = result_df[stat].str.split(':').str[1]
+            result_df[stat] = result_df[stat].str.split(':').str[0]
     
     return result_df
 
@@ -248,19 +259,22 @@ def display_race_data(df, odds_df):
                         computeform_df,
                         use_container_width=True,
                         column_config={
-                        'Horse': st.column_config.TextColumn('Horse', width='medium'),
-                        'horse_form_score': st.column_config.TextColumn('FORM', width='small', help="Form score trend"),
-                        'horse_potential_skill_score': st.column_config.TextColumn('POTENTIAL', width='small', help="Potential skill trend"),
-                        'horse_fitness_score': st.column_config.TextColumn('FITNESS', width='small', help="Fitness trend"),
-                        'horse_enthusiasm_score': st.column_config.TextColumn('ENTHUSIASM', width='small', help="Enthusiasm trend"),
-                        'horse_jumping_skill_score': st.column_config.TextColumn('JUMPING', width='small', help="Jumping skill trend"),
-                        'horse_going_skill_score': st.column_config.TextColumn('GOING', width='small', help="Going skill trend"),
-                        'horse_distance_skill_score': st.column_config.TextColumn('DISTANCE', width='small', help="Distance skill trend"),
-                        'jockey_skill_score': st.column_config.TextColumn('JOCKEY', width='small', help="Jockey skill trend"),
-                        'trainer_skill_score': st.column_config.TextColumn('TRAINER', width='small', help="Trainer skill trend"),
-                        'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score"),
-                    }
-                )
+                            'Horse': st.column_config.TextColumn('Horse', width='medium'),
+                            'horse_form_score': st.column_config.NumberColumn('FORM', width='small', help="Form score"),
+                            'horse_potential_skill_score': st.column_config.NumberColumn('POTENTIAL', width='small', help="Potential skill score"),
+                            'horse_fitness_score': st.column_config.NumberColumn('FITNESS', width='small', help="Fitness score"),
+                            'horse_enthusiasm_score': st.column_config.NumberColumn('ENTHUSIASM', width='small', help="Enthusiasm score"),
+                            'horse_jumping_skill_score': st.column_config.NumberColumn('JUMPING', width='small', help="Jumping skill score"),
+                            'horse_going_skill_score': st.column_config.NumberColumn('GOING', width='small', help="Going skill score"),
+                            'horse_distance_skill_score': st.column_config.NumberColumn('DISTANCE', width='small', help="Distance skill score"),
+                            'jockey_skill_score': st.column_config.NumberColumn('JOCKEY', width='small', help="Jockey skill score"),
+                            'trainer_skill_score': st.column_config.NumberColumn('TRAINER', width='small', help="Trainer skill score"),
+                            'COMPUTE': st.column_config.NumberColumn('DG SCORE', width='small', help="Final computed score"),
+                        },
+                        hide_index=True,
+                        # Apply the styles
+                        style=computeform_df[[f"{stat}_style" for stat, _ in stats]].to_dict('records')
+                    )
             st.markdown("---")  # Add a separator between races
     else:
         st.info("Please select at least one race name to display the data.")

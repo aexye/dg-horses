@@ -146,9 +146,9 @@ def create_computeform_table(race_df):
     # Apply styling
     styled_df = result_df.style.apply(apply_styles)
     
-    # Format numbers as integers
+    # Format numbers as integers, skip non-numeric
     number_format = {stat[0]: '{:,.0f}' for stat in STATS}
-    number_format['COMPUTE'] = '{:,.0f}'
+    number_format['COMPUTE'] = lambda x: '{:,.0f}'.format(x) if isinstance(x, (int, float)) else x
     styled_df = styled_df.format(number_format)
     
     return styled_df

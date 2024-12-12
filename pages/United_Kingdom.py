@@ -125,19 +125,21 @@ def create_computeform_table(race_df):
     result_df = result_df.sort_values('sort_value', ascending=False)
     result_df = result_df.drop('sort_value', axis=1)
     
-    # Create the style DataFrame with the same shape as result_df
+    # Create the style DataFrame with the same columns as result_df
     style_df = pd.DataFrame('', index=result_df.index, columns=result_df.columns)
     
     # Apply styles based on diff values
     for stat, diff in STATS:
-        if f"{stat}_diff" in result_df.columns:
-            mask_up = result_df[f"{stat}_diff"] < 0
-            mask_down = result_df[f"{stat}_diff"] > 0
-            mask_neutral = result_df[f"{stat}_diff"] == 0
+        if f"{stat}_diff" in race_df.columns:  # Check in original race_df instead
+            mask_up = race_df[f"{stat}_diff"] < 0
+            mask_down = race_df[f"{stat}_diff"] > 0
+            mask_neutral = race_df[f"{stat}_diff"] == 0
             
-            style_df.loc[mask_up, stat] = 'background-color: #d4edda; color: #155724'  # Green
-            style_df.loc[mask_down, stat] = 'background-color: #f8d7da; color: #721c24'  # Red
-            style_df.loc[mask_neutral, stat] = 'background-color: #f8f9fa'  # Gray
+            # Only apply styling if the stat column exists in result_df
+            if stat in result_df.columns:
+                style_df.loc[mask_up, stat] = 'background-color: #d4edda; color: #155724'
+                style_df.loc[mask_down, stat] = 'background-color: #f8d7da; color: #721c24'
+                style_df.loc[mask_neutral, stat] = 'background-color: #f8f9fa'
     
     # Drop the diff columns before display
     for stat, _ in STATS:
@@ -145,7 +147,7 @@ def create_computeform_table(race_df):
             result_df = result_df.drop(f"{stat}_diff", axis=1)
     
     # Apply styling and number formatting
-    styled_df = result_df.style.apply(lambda _: style_df, axis=None)
+    styled_df = result_df.style.apply(lambda x: style_df.loc[x.index, x.name], axis=0)
     
     # Format numbers as integers
     number_format = {stat: '{:,.0f}' for stat, _ in STATS}

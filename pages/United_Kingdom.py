@@ -144,6 +144,8 @@ def create_computeform_table(race_df):
                 styles.append('background-color: #d4edda; color: #155724')
             elif diff > 0:
                 styles.append('background-color: #f8d7da; color: #721c24')
+            else:
+                styles.append('')  # Changed: No background color for unchanged values
         return styles
     
     # Apply styling

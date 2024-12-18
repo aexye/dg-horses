@@ -42,6 +42,7 @@ def get_data_uk():
             'horse_distance_skill_score', 'horse_distance_skill_score_diff',
             'jockey_skill_score', 'jockey_skill_score_diff',
             'trainer_skill_score', 'trainer_skill_score_diff'
+            'using_sire_stats
         ).execute()
         
         df = pd.DataFrame(response_gb.data)

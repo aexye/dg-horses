@@ -100,6 +100,13 @@ def create_computeform_table(race_df):
     for _, horse in race_df.iterrows():
         row = {'Horse': horse['Horse']}
         
+        # Add sire stats indicator
+        # Add a symbol to the horse name if using sire stats
+        horse_name = horse['Horse']
+        if horse['using_sire_stats']:
+            horse_name = f"{horse_name} 🧬"  # DNA emoji to indicate sire stats usage
+        row['Horse'] = horse_name
+        
         # Calculate total score
         total_score = sum(horse[stat[0]] for stat in STATS)
         
@@ -137,7 +144,7 @@ def create_computeform_table(race_df):
                 styles.append('')
                 continue
                 
-            horse_name = result_df.loc[idx, 'Horse']
+            horse_name = result_df.loc[idx, 'Horse'].split(' 🧬')[0]  # Remove emoji for matching
             horse_idx = race_df[race_df['Horse'] == horse_name].index[0]
             
             diff = race_df.loc[horse_idx, f"{col.name}_diff"]
@@ -274,7 +281,7 @@ def display_race_data(df, odds_df):
                         computeform_df,
                         use_container_width=True,
                         column_config={
-                            'Horse': st.column_config.TextColumn('Horse', width='medium'),
+                            'Horse': st.column_config.TextColumn('Horse', width='medium', help="🧬 indicates sire stats are being used"),
                             'horse_form_score': st.column_config.NumberColumn('FORM', width='small', help="Form score", format='%d'),
                             'horse_potential_skill_score': st.column_config.NumberColumn('POTENTIAL', width='small', help="Potential skill score", format='%d'),
                             'horse_fitness_score': st.column_config.NumberColumn('FITNESS', width='small', help="Fitness score", format='%d'),

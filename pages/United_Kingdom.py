@@ -39,7 +39,7 @@ chatbot_html = """
 </style>
 """
 
-st.components.v1.html(chatbot_html
+st.html(chatbot_html)
 
 # Initialize clients (consider moving this to a separate function)
 @st.cache_resource

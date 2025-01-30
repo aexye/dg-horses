@@ -9,56 +9,6 @@ import plotly.express as px
 st.set_page_config(page_title="UK Horse Racing", page_icon="🇬🇧", layout="wide")
 st.logo("dg-logo.png")
 
-# Add chatbot HTML component
-chatbot_html = """
-<script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
-<div style="height: 700px;">
-<df-messenger
-  project-id="data-gaming-425312"
-  agent-id="840d8e2a-1a6e-460a-b54d-a62a90d30b67"
-  language-code="en"
-  max-query-length="-1">
-  <df-messenger-chat-bubble
-   chat-title="Henry">
-  </df-messenger-chat-bubble>
-</df-messenger>
-</div>
-<style>
-  df-messenger {
-    z-index: 999999;
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-  }
-  
-  df-messenger-chat {
-    z-index: 1000000;
-  }
-
-  df-messenger-chat-bubble {
-    background-color: #0084ff;
-  }
-
-  df-messenger-chat-window {
-    width: 400px !important;
-    height: 600px !important;
-  }
-
-  df-messenger-user-input {
-    padding: 10px;
-  }
-
-  df-messenger-message {
-    background-color: white;
-    border-radius: 10px;
-    padding: 10px;
-    margin: 5px;
-  }
-</style>
-"""
-
-st.html(chatbot_html)
-
 # Initialize clients (consider moving this to a separate function)
 @st.cache_resource
 def init_clients():

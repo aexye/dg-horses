@@ -12,6 +12,7 @@ st.logo("dg-logo.png")
 # Add chatbot HTML component
 chatbot_html = """
 <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+<div style="height: 700px;">
 <df-messenger
   project-id="data-gaming-425312"
   agent-id="840d8e2a-1a6e-460a-b54d-a62a90d30b67"
@@ -21,6 +22,7 @@ chatbot_html = """
    chat-title="Henry">
   </df-messenger-chat-bubble>
 </df-messenger>
+</div>
 <style>
   df-messenger {
     z-index: 999999;
@@ -55,7 +57,7 @@ chatbot_html = """
 </style>
 """
 
-st.html(chatbot_html, height=700)
+st.html(chatbot_html)
 
 # Initialize clients (consider moving this to a separate function)
 @st.cache_resource

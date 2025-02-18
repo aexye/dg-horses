@@ -43,7 +43,7 @@ def get_data_uk():
             'horse_distance_skill_score', 'horse_distance_skill_score_diff',
             'jockey_skill_score', 'jockey_skill_score_diff',
             'trainer_skill_score', 'trainer_skill_score_diff',
-            'using_sire_stats'
+            'using_sire_stats', 'race_time_off'
         ).execute()
         
         df = pd.DataFrame(response_gb.data)
@@ -175,7 +175,12 @@ def display_race_data(df, odds_df):
     if selected_city != "All":
         df = df[df['city'] == selected_city]
     
-    selected = st.multiselect("Select race name", df['race_name'].unique())
+    # Create a sortable race name with time
+    df['race_name_with_time_off'] = df['race_time_off'] + " - " + df['race_name']
+    
+    # Sort the unique race names by time
+    unique_races = sorted(df['race_name_with_time_off'].unique())
+    selected = st.multiselect("Select race name", unique_races)
     
     if selected:
         for race in selected:

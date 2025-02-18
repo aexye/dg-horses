@@ -170,7 +170,7 @@ def create_computeform_table(race_df):
 def display_race_data(df, odds_df):
     st.subheader("Race Data")
     
-    selected_city = st.selectbox("Select city", ["All"] + list(df['city'].unique()))
+    selected_city = st.selectbox("Select racecourse", ["All"] + list(df['city'].unique()))
     
     if selected_city != "All":
         df = df[df['city'] == selected_city]

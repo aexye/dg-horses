@@ -183,9 +183,11 @@ def display_race_data(df, odds_df):
     selected = st.multiselect("Select race name", unique_races)
     
     if selected:
-        for race in selected:
-            st.markdown(f"### {race}")
-            race_df = df[df['race_name'] == race]
+        for race_with_time in selected:
+            st.markdown(f"### {race_with_time}")
+            # Extract the original race name (everything after " - ")
+            race_name = race_with_time.split(" - ")[1]
+            race_df = df[df['race_name'] == race_name]
             
             # Get the race_id for this race
             race_id = race_df['race_id'].iloc[0]
@@ -231,7 +233,7 @@ def display_race_data(df, odds_df):
                         'odds': 'Odds',
                         'Horse': 'Horse'
                     },
-                    title=f'Odds Movement - {race}',  # Added race name to title for clarity
+                    title=f'Odds Movement - {race_name}',  # Added race name to title for clarity
                     log_y=True
                 )
                 

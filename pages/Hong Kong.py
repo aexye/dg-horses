@@ -28,7 +28,7 @@ supabase, bq_client = init_clients()
 @st.cache_data(ttl=600)
 def get_data_hk():
     try:
-        response_hk = supabase.table('hk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob').execute()
+        response_hk = supabase.table('hk_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob', 'race_time_off').execute()
         df = pd.DataFrame(response_hk.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
         df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 

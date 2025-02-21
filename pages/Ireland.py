@@ -29,7 +29,7 @@ supabase, bq_client = init_clients()
 @st.cache_data(ttl=600)
 def get_data_ie():
     try:
-        response_ie = supabase.table('ie_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob').execute()
+        response_ie = supabase.table('ie_horse_racing_full').select('race_date', 'race_name', 'city', 'horse', 'jockey','odds', 'odds_predicted', 'horse_num', 'positive_hint', 'negative_hint', 'draw_norm', 'last_5_positions', 'odds_predicted_intial', 'winner_prob','trifecta_prob','quinella_prob','place_prob','last_place_prob', 'race_time_off').execute()
         df = pd.DataFrame(response_ie.data)
         df['race_date'] = pd.to_datetime(df['race_date'])
         df.rename(columns={'horse': 'Horse', 'jockey': 'Jockey', 'odds_predicted': 'Odds predicted', 'horse_num': 'Horse number', 'odds': 'Initial market odds', 'positive_hint': 'Betting hint (+)', 
@@ -56,14 +56,18 @@ def get_bigquery_data():
 def display_race_data(df):
     st.subheader("Race Data")
 
-    selected_city = st.selectbox("Select city", ["All"] + list(df['city'].unique()))
+    selected_city = st.selectbox("Select racecourse", ["All"] + list(df['city'].unique()))
     
-    # Filter dataframe by city if a specific city is selected
     if selected_city != "All":
         df = df[df['city'] == selected_city]
     
-    selected = st.multiselect("Select race name", df['race_name'].unique())
+    # Create a sortable race name with time
+    df['race_name_with_time_off'] = df['race_time_off'] + " - " + df['race_name']
     
+    # Sort the unique race names by time
+    unique_races = sorted(df['race_name_with_time_off'].unique())
+    selected = st.multiselect("Select race name", unique_races)
+
     if selected:
         for race in selected:
             race_df = df[df['race_name'] == race]

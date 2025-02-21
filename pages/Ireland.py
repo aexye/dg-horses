@@ -67,14 +67,20 @@ def display_race_data(df):
     # Sort the unique race names by time
     unique_races = sorted(df['race_name_with_time_off'].unique())
     selected = st.multiselect("Select race name", unique_races)
-
+    
     if selected:
         for race in selected:
-            race_df = df[df['race_name'] == race]
+            # Extract just the race name part (after the time)
+            race_name = race.split(" - ", 1)[1]
+            race_df = df[df['race_name'] == race_name]
             
+            # Check if race_df is not empty before proceeding
+            if race_df.empty:
+                st.warning(f"No data found for race: {race}")
+                continue
+                
             race_df['Odds difference'] = np.absolute(race_df['Initial market odds'] - race_df['Odds predicted'])
             odds_diff = race_df['Odds difference'].sum().round(2)
-            #calculate over round
             race_df['market_overround'] = 1/race_df['Initial market odds']
             race_df['our_overround'] = 1/race_df['Odds predicted']
             market_ovr = (race_df['market_overround'].sum()).round(2)
@@ -84,22 +90,17 @@ def display_race_data(df):
             race_date = race_df['race_date'].iloc[0].strftime('%Y-%m-%d')
             city = race_df['city'].iloc[0]
             
-            # Create a header for each race
-            #make two columns view 
-            
             st.markdown(f"### {race}")
             st.markdown(f"**Date:** {race_date} | **City:** {city}")
-            # st.markdown(f"**Odds difference:** {odds_diff}")
-            # st.markdown(f"**Market Overround:** {market_ovr} | **Our Overround:** {our_ovr}")
             
             # Display only horse, jockey, and odds
             display_df = race_df[['Horse number', 'Horse', 'Jockey', 'Draw', 'Last 5 races', 'Initial market odds', 'Odds predicted', 'Odds predicted (raw)', 'Betting hint (+)', 'Betting hint (-)']].reset_index(drop=True)
             display_df_prob = race_df[['Horse', 'Win probability', 'Top2 probability', 'Top3 probability', 'Last place probability']]
-            display_df.index += 1  # Start index from 1 instead of 0
-            display_df_prob.index += 1  # Start index from 1 instead of 0
+            display_df.index += 1
+            display_df_prob.index += 1
             st.dataframe(display_df, use_container_width=True)
             st.dataframe(display_df_prob, use_container_width=True)
-            st.markdown("---")  # Add a separator between races
+            st.markdown("---")
     else:
         st.info("Please select at least one race name to display the data.")
 

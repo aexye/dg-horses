@@ -121,7 +121,7 @@ def plot_earnings(df):
 def main():
     st.title("🇫🇷 FR Horse Racing Odds Prediction")
     
-    tab1, tab2, tab3, tab4 = st.tabs(["Race Data", "Performance Metrics", "Preview Demo", "Horse Racing Assistant"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Race Data", "Performance Metrics", "Preview Demo", "Chat with Bernard"])
     
     with tab1:
         race_data = get_data_fr()
@@ -237,7 +237,7 @@ def main():
                     chat-title="Bernard - votre assistant hippique"
                     chat-title-icon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDgwIDEyOHYyMDhjMCAxOC4yLTguMyAzNC45LTIyLjggNDUuOS0xNC40IDEwLjktMzIuNyAxNC42LTUwLjIgOS43bC0xNTYuNi00My4zYy0xNy4yLTQuOC0zMi4zLTE1LjEtNDMuMi0yOS44TDE0NCAzNDRWMjI0YzAtMTcuNyAxNC4zLTMyIDMyLTMyaDY0YzE3LjcgMCAzMiAxNC4zIDMyIDMydjY0aDk2bDU1LjUtNTUuNWMxOS4xLTE5LjEgNDQuMi0yOS41IDcxLTI5LjVIMTQ0YzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMySDMyQzE0LjMgMTI4IDAgMTQyLjMgMCAxNjB2MjI0YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDY0YzE3LjcgMCAzMi0xNC4zIDMyLTMyVjM0NGMwLTEwLjYgNC4xLTIwLjggMTEuNS0yOC4zTDI0MCAyMTQuN1YyNTZjMCAxNy43LTE0LjMgMzItMzIgMzJoLTY0Yy0xNy43IDAtMzItMTQuMy0zMi0zMnYtNjRjMC0xNy43IDE0LjMtMzIgMzItMzJoMTkyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjEyOGMwIDEwLjYtNC4xIDIwLjgtMTEuNSAyOC4zbC0xMDEuNyAxMDEuN2MtMy42IDMuNi04LjUgNS42LTEzLjcgNS42SDEyOGMtMTcuNyAwLTMyLTE0LjMtMzItMzJzMTQuMy0zMiAzMi0zMmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMTI4Yy01MyAwLTk2LTQzLTk2LTk2czQzLTk2IDk2LTk2aDI3LjFjMjYuOCAwIDUxLjkgMTAuNCA3MC44IDI5LjNsNTYuMSA1Ni4xaDc0LjFjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMzIwYy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMyaC0zMmMtNTMgMC05NiA0My05NiA5NnM0MyA5NiA5NiA5NmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMTI4Yy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyaDEyOGMxNy43IDAgMzIgMTQuMyAzMiAzMnMtMTQuMyAzMi0zMiAzMkgxMjhjLTUzIDAtOTYtNDMtOTYtOTZzNDMtOTYgOTYtOTZoMjcuMWMyNi44IDAgNTEuOSAxMC40IDcwLjggMjkuM2w1Ni4xIDU2LjFoNzQuMWMxNy43IDAgMzIgMTQuMyAzMiAzMnMtMTQuMyAzMi0zMiAzMkgzMjBjLTE3LjcgMC0zMi0xNC4zLTMyLTMyVjE2MGMwLTE3LjcgMTQuMy0zMiAzMi0zMmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJ6Ii8+PC9zdmc+"
                     placeholder-text="Posez une question sur les courses hippiques..."
-                    bot-writing-text="Bernard réfléchit... 🐎 (cela peut prendre quelques secondes)"
+                    bot-writing-text="Bernard réfléchit... 🐎 (cela peut prendre quelques secondes en raison de la version de démonstration)"
                     expand="true">
                 </df-messenger-chat>
             </df-messenger>

@@ -94,6 +94,14 @@ STATS = [
     ('trainer_skill_score', 'trainer_skill_score_diff')
 ]
 
+# Helper function to get position suffix (1st, 2nd, 3rd, etc.)
+def get_position_suffix(position):
+    if 10 <= position % 100 <= 20:
+        return "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(position % 10, "th")
+    return suffix
+
 def create_computeform_table(race_df):
     # Create a new dataframe for display
     display_data = []
@@ -213,7 +221,27 @@ def display_race_data(df, odds_df):
             # Display probability data
             display_df_prob = race_df[['Horse', 'Win probability', 'Top2 probability', 
                                      'Top3 probability', 'Last place probability']]
+            
+            # Create a copy to avoid modifying the original dataframe
+            display_df_prob = display_df_prob.copy()
+            
+            # Sort by win probability (descending) to determine predicted positions
+            sorted_horses = display_df_prob.sort_values('Win probability', ascending=False)
+            
+            # Create a mapping of horse to predicted position (as integer)
+            position_map = {horse: i+1 for i, horse in enumerate(sorted_horses['Horse'])}
+            
+            # Add the predicted position column to the original dataframe
+            display_df_prob['Predicted Position'] = display_df_prob['Horse'].map(position_map)
+            
+            # Reorder columns to have Predicted Position as the second column
+            display_df_prob = display_df_prob[[ 'Predicted Position', 'Horse', 'Win probability', 
+                                             'Top2 probability', 'Top3 probability', 'Last place probability']]
+            
+            # Reset the index for display
             display_df_prob.index += 1
+            
+            # Display the dataframe with the new column
             st.dataframe(display_df_prob, use_container_width=True)
             
             # Move the chart creation inside the race loop
@@ -417,7 +445,7 @@ def main():
                     chat-title="Henry - your horse assistant"
                     chat-title-icon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDgwIDEyOHYyMDhjMCAxOC4yLTguMyAzNC45LTIyLjggNDUuOS0xNC40IDEwLjktMzIuNyAxNC42LTUwLjIgOS43bC0xNTYuNi00My4zYy0xNy4yLTQuOC0zMi4zLTE1LjEtNDMuMi0yOS44TDE0NCAzNDRWMjI0YzAtMTcuNyAxNC4zLTMyIDMyLTMyaDY0YzE3LjcgMCAzMiAxNC4zIDMyIDMydjY0aDk2bDU1LjUtNTUuNWMxOS4xLTE5LjEgNDQuMi0yOS41IDcxLTI5LjVIMTQ0YzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMySDMyQzE0LjMgMTI4IDAgMTQyLjMgMCAxNjB2MjI0YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDY0YzE3LjcgMCAzMi0xNC4zIDMyLTMyVjM0NGMwLTEwLjYgNC4xLTIwLjggMTEuNS0yOC4zTDI0MCAyMTQuN1YyNTZjMCAxNy43LTE0LjMgMzItMzIgMzJoLTY0Yy0xNy43IDAtMzItMTQuMy0zMi0zMnYtNjRjMC0xNy43IDE0LjMtMzIgMzItMzJoMTkyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjEyOGMwIDEwLjYtNC4xIDIwLjgtMTEuNSAyOC4zbC0xMDEuNyAxMDEuN2MtMy42IDMuNi04LjUgNS42LTEzLjcgNS42SDEyOGMtMTcuNyAwLTMyLTE0LjMtMzItMzJzMTQuMy0zMiAzMi0zMmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMTI4Yy01MyAwLTk2LTQzLTk2LTk2czQzLTk2IDk2LTk2aDI3LjFjMjYuOCAwIDUxLjkgMTAuNCA3MC44IDI5LjNsNTYuMSA1Ni4xaDc0LjFjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMzIwYy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMyaC0zMmMtNTMgMC05NiA0My05NiA5NnM0MyA5NiA5NiA5NmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMTI4Yy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyaDEyOGMxNy43IDAgMzIgMTQuMyAzMiAzMnMtMTQuMyAzMi0zMiAzMkgxMjhjLTUzIDAtOTYtNDMtOTYtOTZzNDMtOTYgOTYtOTZoMjcuMWMyNi44IDAgNTEuOSAxMC40IDcwLjggMjkuM2w1Ni4xIDU2LjFoNzQuMWMxNy43IDAgMzIgMTQuMyAzMiAzMnMtMTQuMyAzMi0zMiAzMkgzMjBjLTE3LjcgMC0zMi0xNC4zLTMyLTMyVjE2MGMwLTE3LjcgMTQuMy0zMiAzMi0zMmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJ6Ii8+PC9zdmc+"
                     placeholder-text="Ask Henry about horse racing..."
-                    bot-writing-text="Henry is thinking... 🐎 (this may take a few seconds)"
+                    bot-writing-text="Henry is thinking... 🐎 (this may take a few seconds - it's a demo version)"
                     expand="true">
                 </df-messenger-chat>
             </df-messenger>

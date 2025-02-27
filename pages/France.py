@@ -121,7 +121,7 @@ def plot_earnings(df):
 def main():
     st.title("🇫🇷 FR Horse Racing Odds Prediction")
     
-    tab1, tab2, tab3 = st.tabs(["Race Data", "Performance Metrics", "Preview Demo"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Race Data", "Performance Metrics", "Preview Demo", "Horse Racing Assistant"])
     
     with tab1:
         race_data = get_data_fr()
@@ -160,6 +160,90 @@ def main():
         df_llm = pd.read_csv("pages/fr_betting_hints_llm.csv")
         df_llm = df_llm[['horse', 'preview']]
         st.dataframe(df_llm, use_container_width=True)
+    with tab4:
+        st.subheader("Chat with Bernard")
+        st.markdown("Chat with Bernard, your horse racing assistant, to get insights about races, horses, and predictions.")
+        
+        # Add Dialogflow Messenger component as a direct chat interface (not a bubble)
+        st.components.v1.html(
+            """
+            <style>
+                :root {
+                    /* Window dimensions */
+                    --df-messenger-chat-window-height: 600px !important;
+                    --df-messenger-chat-window-width: 100% !important;
+                    
+                    /* Colors from documentation */
+                    --df-messenger-bot-message: #f3f6fc;
+                    --df-messenger-button-titlebar-color: #0b57d0;
+                    --df-messenger-button-titlebar-font-color: #ffffff;
+                    --df-messenger-chat-background-color: #ffffff;
+                    --df-messenger-font-color: #444746;
+                    --df-messenger-input-box-color: #ffffff;
+                    --df-messenger-input-font-color: #444746;
+                    --df-messenger-input-placeholder-font-color: #757575;
+                    --df-messenger-minimized-chat-close-icon-color: #0b57d0;
+                    --df-messenger-send-icon: #0b57d0;
+                    --df-messenger-user-message: #e8f0fe;
+                    
+                    /* Additional styling variables */
+                    --df-messenger-primary-color: #0b57d0;
+                    --df-messenger-input-box-border: 1px solid #e0e0e0;
+                    --df-messenger-input-box-border-radius: 8px;
+                    --df-messenger-input-box-padding: 15px;
+                    --df-messenger-message-border-radius: 8px;
+                    --df-messenger-titlebar-background: #ffffff;
+                    --df-messenger-titlebar-font-color: #202124;
+                    --df-messenger-titlebar-border-bottom: 1px solid #e0e0e0;
+                }
+                
+                df-messenger {
+                    width: 100% !important;
+                    height: 600px !important;
+                    display: block !important;
+                }
+                
+                df-messenger-chat {
+                    width: 100% !important;
+                    height: 600px !important;
+                    display: block !important;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                }
+                
+                /* Fix for the horse icon */
+                .df-messenger-chat-title-icon {
+                    width: 24px;
+                    height: 24px;
+                    margin-right: 8px;
+                }
+            </style>
+            
+            <link rel="stylesheet" href="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css">
+            <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+            
+            <df-messenger
+                location="europe-west3"
+                project-id="data-gaming-425312"
+                agent-id="7293f408-37d3-4aeb-ac9e-347b831b806e"
+                language-code="fr"
+                max-query-length="-1"
+                allow-feedback="all"
+                storage-option="none"
+                intent="WELCOME">
+                <df-messenger-chat
+                    chat-title="Bernard - votre assistant hippique"
+                    chat-title-icon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDgwIDEyOHYyMDhjMCAxOC4yLTguMyAzNC45LTIyLjggNDUuOS0xNC40IDEwLjktMzIuNyAxNC42LTUwLjIgOS43bC0xNTYuNi00My4zYy0xNy4yLTQuOC0zMi4zLTE1LjEtNDMuMi0yOS44TDE0NCAzNDRWMjI0YzAtMTcuNyAxNC4zLTMyIDMyLTMyaDY0YzE3LjcgMCAzMiAxNC4zIDMyIDMydjY0aDk2bDU1LjUtNTUuNWMxOS4xLTE5LjEgNDQuMi0yOS41IDcxLTI5LjVIMTQ0YzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMySDMyQzE0LjMgMTI4IDAgMTQyLjMgMCAxNjB2MjI0YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDY0YzE3LjcgMCAzMi0xNC4zIDMyLTMyVjM0NGMwLTEwLjYgNC4xLTIwLjggMTEuNS0yOC4zTDI0MCAyMTQuN1YyNTZjMCAxNy43LTE0LjMgMzItMzIgMzJoLTY0Yy0xNy43IDAtMzItMTQuMy0zMi0zMnYtNjRjMC0xNy43IDE0LjMtMzIgMzItMzJoMTkyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjEyOGMwIDEwLjYtNC4xIDIwLjgtMTEuNSAyOC4zbC0xMDEuNyAxMDEuN2MtMy42IDMuNi04LjUgNS42LTEzLjcgNS42SDEyOGMtMTcuNyAwLTMyLTE0LjMtMzItMzJzMTQuMy0zMiAzMi0zMmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMTI4Yy01MyAwLTk2LTQzLTk2LTk2czQzLTk2IDk2LTk2aDI3LjFjMjYuOCAwIDUxLjkgMTAuNCA3MC44IDI5LjNsNTYuMSA1Ni4xaDc0LjFjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMzIwYy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMyaC0zMmMtNTMgMC05NiA0My05NiA5NnM0MyA5NiA5NiA5NmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJzLTE0LjMgMzItMzIgMzJIMTI4Yy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyaDEyOGMxNy43IDAgMzIgMTQuMyAzMiAzMnMtMTQuMyAzMi0zMiAzMkgxMjhjLTUzIDAtOTYtNDMtOTYtOTZzNDMtOTYgOTYtOTZoMjcuMWMyNi44IDAgNTEuOSAxMC40IDcwLjggMjkuM2w1Ni4xIDU2LjFoNzQuMWMxNy43IDAgMzIgMTQuMyAzMiAzMnMtMTQuMyAzMi0zMiAzMkgzMjBjLTE3LjcgMC0zMi0xNC4zLTMyLTMyVjE2MGMwLTE3LjcgMTQuMy0zMiAzMi0zMmgxMjhjMTcuNyAwIDMyIDE0LjMgMzIgMzJ6Ii8+PC9zdmc+"
+                    placeholder-text="Posez une question sur les courses hippiques..."
+                    bot-writing-text="Bernard réfléchit... 🐎 (cela peut prendre quelques secondes)"
+                    expand="true">
+                </df-messenger-chat>
+            </df-messenger>
+            """,
+            height=650,
+        )
         
         
 if __name__ == "__main__":
